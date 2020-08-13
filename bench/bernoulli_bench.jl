@@ -5,17 +5,7 @@ using Polylogarithms
 using BenchmarkTools
 using DataFrames, CSV
 using PyPlot
-import Base: parse
-# from https://github.com/JuliaLang/julia/issues/18328
-function parse(::Type{Rational{T}}, x::AbstractString) where {T<:Integer}
-    list = split(x, '/', keepempty=false)
-    if length(list) == 1
-        return parse(T, list[1]) // 1
-    else
-        @assert length(list) == 2
-        return parse(T, list[1]) // parse(T, list[2])
-    end
-end
+include("utilities.jl")
 
 ##############################################
 # Bernoulli numbers

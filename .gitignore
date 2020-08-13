@@ -1,3 +1,4 @@
+plots/
 *~
 *.jl.*.cov
 *.jl.cov
