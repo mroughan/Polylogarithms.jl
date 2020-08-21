@@ -17,8 +17,9 @@ julia> parse( Complex{Float64}, "1.2 - 3.1*I")
 """
 function parse(::Type{Complex{T}}, s::AbstractString) where {T<:Real}
     s = replace(s, "*^" => "e") # Mathematica seems to export in forms like "3.061616997868383*^-18"
-    real_r = r"([+-]?\d*\.\d*(e[+-]\d+)?)([\s+-]|$)"
-    imag_r = r"([+-]?\d*\.\d*(e[+-]\d+)?)\s*\*\s*I"
+    # real_r = r"([+-]?\d*(\.\d*)?(e[+-]?\d+)?)([\s+-]|$)"
+    real_r = r"([+-]?\d*(\.\d*)?(e[+-]?\d+)?)([^*iI])"
+    imag_r = r"([+-]?\d*(\.\d*)?(e[+-]?\d+)?)\s*\*\s*I"
     
     z = zero(Complex{T})
     

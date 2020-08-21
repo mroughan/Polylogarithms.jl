@@ -1,6 +1,6 @@
-# check the Bernoulli numbers and polynomials
-#    this is mostly just a check that code is correct
-#    most errors are arising because of errors in the functions being used
+# check polylog
+#    compare Series~2 and Series~3 near s=n > 0
+#
 using Polylogarithms
 using BenchmarkTools
 using DataFrames, CSV

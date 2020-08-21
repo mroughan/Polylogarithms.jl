@@ -48,7 +48,10 @@ savefig("plots/bernoulli_bench_2.pdf")
 ##############################################
 # Bernoulli polynomials: data v x
 B = Symbol("B_n(x)")
-data3 = CSV.read("../data/bernoulli_test_data_2.csv")
+data3 = CSV.read("../data/bernoulli_test_data_2.csv"; delim=",", type=String)
+data3[!,:n] = parse.(Float64, data3[!,:n] )
+data3[!,:x] = parse.(Float64, data3[!,:x] )
+data3[!,B] = parse.(Float64, data3[!,B] )
 m = size(data3,1)
 B3 = zeros(Float64, m)
 B3_ref = zeros(Float64, m)

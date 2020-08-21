@@ -5,129 +5,117 @@ const near_int_threshold = 1.0e-6
 const series_transition_threshold = 0.25
 
 """
-polylog(s, z)
+    polylog(s, z)
 
-Calculates the Polylogarithm function ```Li_s(z)``` defined by
+Calculates the Polylogarithm function `Li_s(z)` defined by
 
-    ``` L_s = \\sum_{n=1}^{\\infty} \\frac{z^n}{n^s}```
+``` L_s = \\sum_{n=1}^{\\infty} \\frac{z^n}{n^s}```
 
-For ideas going into this see
-    
-+ Crandall, 'Note on fast polylogarithm computation', 2006, 
-  which focusses on the case where s=n (integer and real)    
-  http://www.wolfgang-ehrhardt.de/Polylog.pdf
+Uses double precision complex numbers (not arbitrary precision).
+It's goal is an relative error bound 10^{-12}.
+ 
+## Input Arguments
+* `s::Complex`: the 'fractional' parameter
+* `z::Complex`: the point at which to calculate it
 
-+ Vepstas, 'AN EFFICIENT ALGORITHM FOR ACCELERATING THE CONVERGENCE
-  OF OSCILLATORY SERIES, USEFUL FOR COMPUTING THE
-  POLYLOGARITHM AND HURWITZ ZETA FUNCTIONS', 2007
-  which treats the general case, but presumes arbitrary precision arithmetic
-  https://arxiv.org/abs/math/0702243
-    
-    + Wood, 'The computation of Polylogarithms', 1992
-    which focusses on s=n, integer and real, and some typos
-    https://www.cs.kent.ac.uk/pubs/1992/110/
-    
-    + Maximon, 'The dilogarithm function for complex argument', 2003
-    which provides useful test cases for s=2.
-        
-        + Zagier, 'The dilogarithm function in geometry and number theory', 1989 
-            similar to Maximon.
-            
-            Of these the only one that actually specifies a full algorithm is
-            Crandall, and he also treats special cases more carefully, so this
-            is the one that I have paid most attention to. However, extending it
-            for s on the whole complex plane requires some additions, and many
-                of these are actually most nicely documented on the wikipedia page
-                
-                + https://en.wikipedia.org/wiki/Polylogarithm
+There are additional keywords, but these are currently intended for testing not use.
 
-                With further details at
+## Output Arguments
+* `Li_s(z)`: The result
+* `n`:       The number of elements used in each series
+* 'series`:  The series used to compute results (4 = reciprocal)
 
-                + http://mathworld.wolfram.com/Polylogarithm.html
-                + http://dlmf.nist.gov/25.12#ii
-                + http://mathworld.wolfram.com/Trilogarithm.html
-                + http://functions.wolfram.com/ZetaFunctionsandPolylogarithms/PolyLog/
-
-                The wiki page points out some errors in earlier works, but not all
-                parts on the page have references, and not all statements seem to
-                come from any of the listed references?
-
-                The code draws heavily on existing functions, in particular the
-                Hurwitz-zeta function, which is aliased to zeta(s,q) in Julia.
-
-                    Accuracy has been tested using many of the identities known for Li
-                        and relations to known functions as special cases, and by comparison
-                        to `polylog(s, z)` in the `mpmath` arbitrary-precision package in Python. 
-
-                        http://mpmath.org/doc/current/functions/zeta.html
-
-                        The latter shows deviations of the order of 
-
-                        + 10^{Im(s) - 20} for Im(s) < 0
-                            + 10^{Im(s) - 20} for Im(s) > 0
-                                
-                                It isn't clear whether we can do better than this with
-                                    double-precision arithmetic.
-
-                                    ## Arguments
-                                    * `s::Complex`: the 'fractional' coefficient
-                                    * `z::Complex`: the point at which to calculate it
-                                    * `accuracy::Real=1.0e-18`: nominal accuracy of calculation, but mainly useful for testing
-
-                                        ## Examples
-                                        ```jldoctest
-    julia> polylog(-1.0, 0.0) 
-    (0.0,1)
-    ```
-                                        """
-function polylog(s::Number, z::Number, accuracy::Real=default_accuracy)
-    T = 0.25 # threshold at which we change algorithms
-    # if !isinteger(s)
-    #     return polylog_zeta(s, z)
-    # end
-    if z ≈ 1.0
-        if real(s) > 1
-            return zeta(s)
-        else
-            return Inf
-        end
-    elseif z ≈ -1.0
-        return -eta(s)
-    elseif s ≈ 0.0
-        return z ./ (1-z)
-    elseif abs(z) <= T
-        ifconfig
-        return polylog_direct(s, z, accuracy)
-    elseif abs(z) >= 1/T && isinteger(s) && real(s) < 0
-        # use reciprocal formula to calculate in terms of Li_n(1/z)
-        # but note for negative integer s, it collapses to something small
-        return -(-1.0)^s .*polylog_direct(s, 1/z, accuracy)
-    elseif  abs(z) >= 1/T
-        # use reciprocal formula to calculate in terms of Li_s(1/z)
-        twopi = 2π
-        z = convert(Complex{Float64}, z)
-        G = (twopi*im)^s * zeta( 1-s, 0.5 + log(-z)/(twopi*im) ) /  gamma(s)
-        F = complex(-1.0)^s * polylog_direct(s, 1/z, accuracy)
-
-        A = twopi*im*log(z)^(s-1)/(gamma(s))
-        if ( isreal(z) && real(z)>=1 )
-            Θ = 1
-        else
-            Θ = 0
-        end
-        # println("G = $G, F=$F, Θ=$Θ, A=$A")
-        return ( G - F - Θ*A )
-    else 
-        # power series around mu=0, for z = e^mu
-        polylog_series_mu(s, z, accuracy)
+## Examples
+```jldoctest
+julia> polylog(0.35, 0.2)
+(0.23803890574407033, 17, 1)
+```
+"""
+function polylog(s::Number, z::Number;
+                 level=1, # keep track of recursion
+                 accuracy::Float64=default_accuracy,
+                 min_iterations::Int64=0,
+                 max_iterations::Int64=default_max_iterations)
+    tau_threshold = 1.0e-3
+    μ = log(convert(Complex{Float64}, z)) # input z could be an integer or anything
+    t = abs(μ/twoπ)
+    T = 0.512 # the duplication formula seems to work if T=0.5 in the small associated wedge, but wyh risk it?
+    if abs(z) <= 0.5 && abs(z) < t
+        return polylog_series_1(s, z; accuracy=accuracy, min_iterations=min_iterations, max_iterations=max_iterations)
+    elseif t <= T && ( abs(round(real(s))-s) > tau_threshold || real(s)<= 0 )
+        return polylog_series_2(s, z; accuracy=accuracy, min_iterations=min_iterations, max_iterations=max_iterations)
+    elseif t <= T
+        return polylog_series_3(s, z; accuracy=accuracy, min_iterations=min_iterations, max_iterations=max_iterations)
+#    elseif t <= 2.0
+    else
+        # println("  main level $level, z=$z,  abs(μ)/2π = ", abs(log(z))/twoπ  )
+        return polylog_duplication(s, z; level=level, accuracy=accuracy, min_iterations=min_iterations, max_iterations=max_iterations)
+    # elseif abs(z) > 1
+    #     return polylog_reciprocal(s, z; accuracy=accuracy, min_iterations=min_iterations, max_iterations=max_iterations)
+    # else
+    #     throw(DomainError(z, "bad z value $z with |z|=$(abs(z)) and |log(z)/(twoπ)|=$(abs(μ/twoπ))"))
     end
+    # we could have a lot more special cases here, particularly for integer input
+    # to make the code faster for these cases, but at the moment may use such values for testing
 end
+
+# old version without square root
+    # if abs(z) <= 0.5 && abs(z) < abs(μ/twoπ)
+    #     return polylog_series_1(s, z; accuracy=accuracy, min_iterations=min_iterations, max_iterations=max_iterations)
+    # elseif abs(μ/twoπ) < series2_threshold && ( abs(round(real(s))-s) > tau_threshold || real(s)<= 0 )
+    #     return polylog_series_2(s, z; accuracy=accuracy, min_iterations=min_iterations, max_iterations=max_iterations)
+    # elseif abs(μ/twoπ) < series2_threshold
+    #     return polylog_series_3(s, z; accuracy=accuracy, min_iterations=min_iterations, max_iterations=max_iterations)
+    # elseif abs(z) > 1
+    #     return polylog_reciprocal(s, z; accuracy=accuracy, min_iterations=min_iterations, max_iterations=max_iterations)
+    # else
+    #     throw(DomainError(z, "bad z value $z with |z|=$(abs(z)) and |log(z)/(twoπ)|=$(abs(μ/twoπ))"))
+    # end
+
+# function polylog(s::Number, z::Number, accuracy::Real=default_accuracy)
+#     if z ≈ 1.0
+#         if real(s) > 1
+#             return zeta(s)
+#         else
+#             return Inf
+#         end
+#     elseif z ≈ -1.0
+#         return -eta(s)
+#     elseif s ≈ 0.0
+#         return z ./ (1-z)
+#     elseif abs(z) <= T
+#         ifconfig
+#         return polylog_direct(s, z, accuracy)
+#     elseif abs(z) >= 1/T && isinteger(s) && real(s) < 0
+#         # use reciprocal formula to calculate in terms of Li_n(1/z)
+#         # but note for negative integer s, it collapses to something small
+#         return -(-1.0)^s .*polylog_direct(s, 1/z, accuracy)
+#     elseif  abs(z) >= 1/T
+#         # use reciprocal formula to calculate in terms of Li_s(1/z)
+#         twopi = 2π
+#         z = convert(Complex{Float64}, z)
+#         G = (twopi*im)^s * zeta( 1-s, 0.5 + log(-z)/(twopi*im) ) /  gamma(s)
+#         F = complex(-1.0)^s * polylog_direct(s, 1/z, accuracy)
+
+#         A = twopi*im*log(z)^(s-1)/(gamma(s))
+#         if ( isreal(z) && real(z)>=1 )
+#             Θ = 1
+#         else
+#             Θ = 0
+#         end
+#         # println("G = $G, F=$F, Θ=$Θ, A=$A")
+#         return ( G - F - Θ*A )
+#     else 
+#         # power series around mu=0, for z = e^mu
+#         polylog_series_mu(s, z, accuracy)
+#     end
+# end
 
     
 ####################################################################
 #### these are component functions and aren't exported at this point
 #### note that for consistency they all have keywords arguments like "accuracy" but
-#### note all make use of these
+#### these aren't intended for general use, just for testing (at the moment)
 
 # calculate using the relationship to the Hurwitz zeta function
 function polylog_zeta(s::Number, z::Number, accuracy=default_accuracy)
@@ -136,93 +124,162 @@ function polylog_zeta(s::Number, z::Number, accuracy=default_accuracy)
     x = im * (log(convert(Complex{Float64}, -z)) / twoπ)
     ss = 1-s
     ip = im^ss
-    return ( gamma(ss)/twoπ^(ss) ) * (ip * SpecialFunctions.zeta(ss, 0.5+x) + conj(ip) * SpecialFunctions.zeta(ss, 0.5-x))
+    return ( SpecialFunctions.gamma(ss)/twoπ^(ss) ) * (ip * SpecialFunctions.zeta(ss, 0.5+x) + conj(ip) * SpecialFunctions.zeta(ss, 0.5-x))
+end
+
+# calculate using the duplication formula
+function polylog_duplication(s::Number, z::Number;
+                             level=0, # keep track of recursion
+                             accuracy::Float64=default_accuracy,
+                             min_iterations::Int64=0,
+                             max_iterations::Int64=default_max_iterations)
+    z = convert(Complex{Float64}, z)
+    f = min( 0.5, 2.0^(1-real(s)) )
+    # println("  dup level $level, z=$z,  abs(μ)/2π = ", abs(log(z))/twoπ  )
+    (Li1, k1, series1) = polylog(s,  sqrt(z); level=level+1, accuracy=f*accuracy,
+                                 min_iterations=min_iterations, max_iterations=max_iterations)
+    (Li2, k2, series2) = polylog(s, -sqrt(z); level=level+1, accuracy=f*accuracy,
+                                 min_iterations=min_iterations, max_iterations=max_iterations)
+    if typeof(s) <: Real
+        s = convert(Float64, s) # convert s into a double
+    elseif typeof(s) <: Complex
+        s = convert(Complex{Float64}, s) # convert s into doubles
+    else
+        throw(DomainError(s), "s has a weird type $(typeof(s))")
+    end
+    return (2^(s-1) * ( Li1 + Li2 ), k1 + k2, 10+series1+series2)
 end
 
 # calculate using the reciprocal formula
 function polylog_reciprocal(s::Number, z::Number;
-                            accuracy::Float64=default_accuracy, max_iterations::Int64=default_max_iterations)
-    z = convert(Complex{Float64}, z)
-    G = (twoπ*im)^s * SpecialFunctions.zeta( 1-s, 0.5 + log(-z)/(twoπ*im) ) /  gamma(s)
-    F = complex(-1.0)^s * polylog_series_1(s, 1/z; accuracy=accuracy, max_iterations=max_iterations)
-    A = twoπ*im*log(z)^(s-1)/(SpecialFunctions.gamma(s))
-    if ( isreal(z) && real(z)>=1 )
-        Θ = 1
+                            accuracy::Float64=default_accuracy,
+                            min_iterations::Int64=0,
+                            max_iterations::Int64=default_max_iterations)
+    # z = convert(Complex{Float64}, z)
+    if abs(z) <= 1
+        throw(DomainError(z, "only use this function for |z|>1, and pref |z| > 2"))
+    end
+    # if abs(z) < 2
+    #     warn("Slow convergence for  |z| < 2")
+    # end
+    if abs(s) < 0.1*accuracy
+        return (z/(1-z), 0) # use the identity 
+    elseif real(s) < 0 &&  abs(imag(s)) < 0.1*accuracy && abs( round(s) - s ) < 0.1*accuracy
+        G = 0.0 # pole of the Gamma function
+        A = 0.0
     else
-        Θ = 0
+        # G = (twoπ*im)^s * SpecialFunctions.zeta( 1-s, 0.5 + log(complex(-z))/(twoπ*im) ) /  SpecialFunctions.gamma(s)
+        # A = twoπ*im*log(z)^(s-1) / SpecialFunctions.gamma(s)
+        tmp = exp( s*log(twoπ*im) - SpecialFunctions.loggamma(complex(s)) )  # (twoπ*im)^s /  SpecialFunctions.gamma(s)
+        G = tmp * SpecialFunctions.zeta( 1-s, 0.5 + log(complex(-z))/(twoπ*im) ) 
+        A = twoπ*im*log(z)^(s-1) / SpecialFunctions.gamma(s)
+    end
+    # accuracy of overall result depends on size of total, which includes these other parts 
+    (Li, k, series) = polylog_series_1(s, 1/z; accuracy=0.1*accuracy,
+                               min_iterations=min_iterations, max_iterations=max_iterations, existing_total=G)
+    F = complex(-1.0)^s * Li 
+    if ( imag(z) == 0 ) &&  ( real(z) >= 1 )
+        Θ = 1.0
+    else 
+        Θ = 0.0
     end
     # println("G = $G, F=$F, Θ=$Θ, A=$A")
-    return ( G - F - Θ*A )
+    return ( G - F - Θ*A, k, 3+series )
 end
 
 # calculate using direct definition
 function polylog_series_1(s::Number, z::Number;
-                          accuracy::Float64=default_accuracy, max_iterations::Int64=default_max_iterations)
+                          accuracy::Float64=default_accuracy,
+                          min_iterations::Int64=0,
+                          max_iterations::Int64=default_max_iterations,
+                          existing_total::Number=0.0)
+    # prolly should convert z to a double or complex-double
     if abs(z) > 1 || ( abs(z) ≈ 1  && real(s) <= 2)
         throw(DomainError(z))
     end
-    # if abs(z) > 1/2
-    #     warn("Slow convergence for  |z| > 1/2")
-    # end
+    if abs(z) > 1/2
+        throw(DomainError(z, "Slow convergence for  |z| > 1/2"))
+    end
     total = 0.0
     # L = ceil(-log10(accuracy)*log2(10)) # summation limit from Crandall,
     # which is conservative, but based on real s>0
     converged = false
     a = z
-    n = 0
+    k = 0
     if real(s) < 0
         min_iterations = ceil( real(s) / log(abs(z)) )
-    else
-        min_iterations = 0
     end
-    while n<=max_iterations && ~converged
-        n = n+1
+    while k<=max_iterations && ~converged
+        k = k+1
         total += a
-        a *= z * ( n/(n+1.0) )^s
+        a *= z * ( k/(k+1.0) )^s
         # println("   total = $total")
-        if n > min_iterations && abs(a)/abs(total) < 0.1*accuracy
+        if k > min_iterations && abs(a)/abs(total) < 0.5*accuracy
             converged = true
         end
     end
-    return (total, n)
+    return (total, k, 1)
 end
 
 # calculate using power series around μ = log(z) = 0
 # this should not be used near positive integer values of s, but we allow it here in order to test
 function polylog_series_2(s::Number, z::Number;
-                          accuracy::Float64=default_accuracy, max_iterations::Int64=default_max_iterations )
-    μ = log(convert(Complex{Float64}, z))
+                          accuracy::Float64=default_accuracy,
+                          min_iterations::Int64=0,
+                          max_iterations::Int64=default_max_iterations )
+    μ = log(convert(Complex{Float64}, z)) # input z could be an integer or anything
+    if typeof(s) <: Real
+        s = convert(Float64, s) # convert s into a double
+    elseif typeof(s) <: Complex
+        s = convert(Complex{Float64}, s) # convert s into doubles
+    else
+        throw(DomainError(s), "s has a weird type $(typeof(s))")
+    end
     # println("μ = $μ") 
     if abs(μ) > twoπ
-        throw(DomainError(z))
+        throw(DomainError(z), "we need |log(z)|< 2π for this series")
     end
-    if real(s) > 0
-        min_iterations = ceil( real(s) )
-    else
-        min_iterations = 0
-    end
-    total = SpecialFunctions.gamma(1-s) * (-μ)^(s-1)
+    # if real(s) > 0
+        # min_iterations = ceil( real(s) ) + 1
+    # else
+        # min_iterations = ceil( -real(s) ) + 1
+        # min_iterations = ceil( real(s) / log(abs( log(z)/twoπ ) ) )
+    # end
+    oneminuss = 1.0 - s
+    total = SpecialFunctions.gamma(oneminuss) * (-μ)^(- oneminuss)
+    # total = exp( SpecialFunctions.loggamma(oneminuss) - oneminuss*log(-μ) )
     converged = false
     tmp = 1
     k = 0
+    a = Inf
+    a_2 = Inf
+    A = abs( 2.0*twoπ^real(s) * exp(abs(imag(π*s)))  )
     while k<=max_iterations && ~converged
+        a_3 = a_2
+        a_2 = a
         a = tmp * SpecialFunctions.zeta(s - k)
         total += a
         tmp *= μ/(k+1)
-        if k > min_iterations && abs( (μ/twoπ)^k )/abs(total) < 0.05*accuracy
-            # look at the largest value it could have, not including zeta which could drop and then go back up
+        if k > min_iterations &&
+            abs(a)/abs(total) < 0.5*accuracy &&
+            abs(a_2)/abs(total) < 0.5*accuracy &&
+            abs(a_2) > abs(a)
+            # abs( A * (k-real(s))^real(-s) * (μ/twoπ)^k )/abs(total) < accuracy
+            # && abs( 2*twoπ^real(s) * (μ/twoπ)^k )/abs(total) < accuracy 
+            # the stopping rule should be implemented more efficiently as part of the calculation above
             converged = true
         end
         k = k + 1
     end
     # get correct value along the branch
-    if isreal(z) && real(z)>=1 
-        total -= 2*π*im*μ^(s-1)/SpecialFunctions.gamma(s)
+    if isreal(z) && real(z)>=1
+        # total -= 2*π*im*μ^(s-1)/SpecialFunctions.gamma(s)
+        total -= exp( log(twoπ*im) + (s-1)*log(μ) - SpecialFunctions.loggamma(s) )
     end
-    return (total, k)
+    return (total, k, 2)
 end
 
-function c(n::Integer, j::Integer,  ℒ::Number)
+function c_closed(n::Integer, j::Integer,  ℒ::Number)
     d2 = SpecialFunctions.digamma(n+1) - ℒ
     if j==0
         return harmonic(n) - ℒ
@@ -241,13 +298,12 @@ function Q_closed(n::Integer, τ::Number, ℒ::Number; n_terms::Integer=3)
     if n_terms < 1 || n_terms > max_n_terms
         throw(DomainError(n_terms))
     end
-    return sum( c.(n, 0:n_terms-1,  ℒ) .* τ.^(0:n_terms-1) )
+    return sum( c_closed.(n, 0:n_terms-1,  ℒ) .* τ.^(0:n_terms-1) )
 end
 
-# used to be called Q_crandall
 function Q(n::Integer, τ::Number, ℒ::Number; n_terms::Integer=5) # Crandall,2012, p.35
     # τ is the distance from the pole s=n>0, ℒ = log(-μ) = log(-log( z ))
-    max_n_terms = 5
+    max_n_terms = 7
     if n_terms < 1 || n_terms > max_n_terms
         throw(DomainError(n_terms))
     end
@@ -276,25 +332,16 @@ function b_crandall(k::Integer, j::Integer,  ℒ) # Crandall,2012, p.36
     return total
 end
 
+const gamma_t = [1.0,-0.5772156649015315,1.9781119906559432,-5.44487445648531,23.561474084025583,-117.83940826837748,715.0673625273184,-5019.848872629852,40243.62157333573,-362526.2891146549,3.627042412756892e6,-3.990708415143132e7,4.7894329176518273e8,-6.226641351546061e9,8.717563381070836e10]
 function g_crandall(t::Int) # Crandall,2012, p.17
     # t derivate of Gamma function at 1
-    #    general form from: http://erikerlandson.github.io/blog/2016/06/15/computing-derivatives-of-the-gamma-function/
-    PG21 = -2.4041138063191902 # SpecialFunctions.polygamma(2,1)
-    PG41 = -24.8862661234409   # SpecialFunctions.polygamma(4,1)
-    if t==0
-        return 1
-    elseif t==1
-        return -γ
-    elseif t==2
-        # return γ^2 - γ + pi^2/6, Crandall seems to be wrong on this
-        return γ^2 + pi^2/6  # from Mathematica
-    elseif t==3
-        # return -2*γ^3 + 9*γ^2 - (π^2+6)*γ + 3*π^2/2 - 4*SpecialFunctions.zeta(3), Crandall seems to be wrong on this
-        return -γ^3  - π^2*γ/2 + PG21 # from Mathematica
-    elseif t==4
-        return γ^4 + γ^2*π^2 + 3*π^4/20 - 4*γ*PG21 # from Mathematica
-    elseif t==5
-        return -γ^5 - (20/12)*γ^3*π^2 - (9/12)*γ*π^4 + (10*γ^2 + (20/12)*π^2)*PG21 + PG41 # from Mathematica
+    # see "gamma_derivatives.jl" for derivations of these numbers
+    if t<0
+        throw(DomainError(t))
+    elseif t>14
+        throw(DomainError(t, "only calculate the 1st 14 derivatives"))
+    else
+        return gamma_t[t+1]
     end
 end
 
@@ -319,35 +366,43 @@ end
 # For the special case that s is near a postive integer n>0
 # Calculate in a power series around z=1, and s=n    
 function polylog_series_3(s::Number, z::Number;
-                          accuracy::Float64=default_accuracy, max_iterations::Int64=default_max_iterations,
+                          accuracy::Float64=default_accuracy,
+                          min_iterations::Int64=0,
+                          max_iterations::Int64=default_max_iterations,
                           n_terms::Integer=5 )
-    μ = log(complex(z))
+    μ = log(convert(Complex{Float64}, z))
     if abs(μ) > twoπ
-        throw(DomainError(z))
+        throw(DomainError(z, "does not converge for abs(ln(z)) > twoπ"))
     end
     if real(s)<=0.5
-        throw(DomainError(s), "for this function s should be near a positive integer")
+        throw(DomainError(s, "for this function s should be near a positive integer"))
     end
-    # assumes s is near a positive integer
+    # this series assumes s is near a positive integer
     n = Int(round(real(s)))
-    τ = s - n # e = s - n
-    if real(s) > 0
-        min_iterations = ceil( real(s) )
-    else
-        min_iterations = 0
-    end
+    τ = s - n
+    # if real(s) > 0
+    #     min_iterations = ceil( real(s) )
+    # end
     ℒ = log(complex(-μ))  # '\u2112'
-    total = μ^(n-1)*Q(n-1, τ, ℒ; n_terms=n_terms)/SpecialFunctions.gamma(n)
+    # total = μ^(n-1)*Q(n-1, τ, ℒ; n_terms=n_terms)/SpecialFunctions.gamma(n)
+    total = exp( (n-1)*log(complex(μ)^(n-1)) + log(Q(n-1, τ, ℒ; n_terms=n_terms))  - SpecialFunctions.loggamma(n) )
     converged = false
+    a = Inf
+    a_2 = Inf
     tmp = 1
     k = 0
     while k<=max_iterations && ~converged
         if n - k != 1
+            a_2 = a
             a = tmp * SpecialFunctions.zeta(s - k)
             total += a
         end
         tmp *= μ/(k+1)
-        if k > min_iterations && abs( (μ/twoπ)^k )/abs(total) < 0.05*accuracy
+        if k > min_iterations &&
+            abs(a)/abs(total) < 0.5*accuracy &&
+            abs(a_2)/abs(total) < 0.5*accuracy &&
+            abs(a_2) > abs(a)
+            # abs( (μ/twoπ)^k )/abs(total) < 0.05*accuracy
             converged = true
         end
         k = k + 1
@@ -356,60 +411,84 @@ function polylog_series_3(s::Number, z::Number;
     if isreal(z) && real(z)>=1 
         total -= 2*π*im*μ^(s-1)/SpecialFunctions.gamma(s)
     end
-    return (total, k)
+    return (total, k, 3)
 end
 
+# # asymptotic expansion
+# function polylog_series_4(s::Number, z::Number;
+#                           accuracy::Float64=default_accuracy,
+#                           min_iterations::Int64=0,
+#                           max_iterations::Int64=default_max_iterations,
+#                           existing_total::Number=0.0)
+#     x = log(-convert(Complex{Float64}, z))
+#     total = 0.0
+#     converged = false
+#     k = 0
+#     a = Inf
+#     while k<=max_iterations && ~converged
+#         old_a = a
+#         a = (-1)^k * (1.0 - 2.0^(1-2*k)) * twoπ^(2*k) * bernoulli(2*k,0.0) * x^(s-2*k) / ( SpecialFunctions.gamma(2*k+1) * SpecialFunctions.gamma(s+1-2*k) )
+#         if abs(a) < abs(old_a)
+#             total += a
+#         else
+#             converged = true
+#         end
+#         k = k+1
+#     end
+#     return (total, k, 4)
+# end
 
-##################################################
+
+# ##################################################
     
-# Special case s=integer for use in testing etc. 
-    function polylog(n::Integer, z::Number;
-                      accuracy::Float64=default_accuracy, max_iterations::Int64=default_max_iterations )
-    L = Int(ceil(-log10(accuracy)*log2(10))) # revisit this limit
-    k = 0
-    if n>1
-        μ = log(convert(Complex{Float64}, z))
-        if abs(μ) > twoπ
-            throw(DomainError(z))
-        end
-        total = μ^(n-1)*(harmonic(n-1) - log(-μ))/SpecialFunctions.gamma(n)
-        tmp = 1
-        for m=0:L
-            if n - m != 1
-                total += tmp * zeta(n - m)
-            end
-            tmp *= μ/(m+1)
-            if abs(tmp)/abs(total) < 1.0e-30
-                break
-            end
-        end
-        if  isreal(z) && real(z)>=1 
-            total -= 2*pi*im*μ^(s-1)/SpecialFunctions.gamma(n)
-        end
-    elseif n==1
-        total = -log(complex(1-z))
-    elseif n==0
-        total = z / (1-z)
-    elseif n==-1
-        total = z / (1-z)^2
-    elseif n<-1
-        # Crandall's 1.5 for s integer 
-        total = factorial(-n) * (-μ)^(n-1)
-        tmp = 1
-        for k=0:L
-            # total -= μ^k * bernoulli(k-n+1, 0.0) / ( gamma(k+1)*(k-n+1) )
-            total -= tmp * bernoulli(k-n+1, 0.0) / (k-n+1)
-            tmp *= μ/(k+1)
-            if abs(tmp)/abs(total) < 1.0e-30
-                    break
-            end
-        end
-    else
-        error("Should not get this case")
-    end
+# # Special case s=integer for use in testing etc. 
+#     function polylog(n::Integer, z::Number;
+#                       accuracy::Float64=default_accuracy, max_iterations::Int64=default_max_iterations )
+#     L = Int(ceil(-log10(accuracy)*log2(10))) # revisit this limit
+#     k = 0
+#     if n>1
+#         μ = log(convert(Complex{Float64}, z))
+#         if abs(μ) > twoπ
+#             throw(DomainError(z))
+#         end
+#         total = μ^(n-1)*(harmonic(n-1) - log(-μ))/SpecialFunctions.gamma(n)
+#         tmp = 1
+#         for m=0:L
+#             if n - m != 1
+#                 total += tmp * zeta(n - m)
+#             end
+#             tmp *= μ/(m+1)
+#             if abs(tmp)/abs(total) < 1.0e-30
+#                 break
+#             end
+#         end
+#         if  isreal(z) && real(z)>=1 
+#             total -= 2*pi*im*μ^(s-1)/SpecialFunctions.gamma(n)
+#         end
+#     elseif n==1
+#         total = -log(complex(1-z))
+#     elseif n==0
+#         total = z / (1-z)
+#     elseif n==-1
+#         total = z / (1-z)^2
+#     elseif n<-1
+#         # Crandall's 1.5 for s integer 
+#         total = factorial(-n) * (-μ)^(n-1)
+#         tmp = 1
+#         for k=0:L
+#             # total -= μ^k * bernoulli(k-n+1, 0.0) / ( gamma(k+1)*(k-n+1) )
+#             total -= tmp * bernoulli(k-n+1, 0.0) / (k-n+1)
+#             tmp *= μ/(k+1)
+#             if abs(tmp)/abs(total) < 1.0e-30
+#                     break
+#             end
+#         end
+#     else
+#         error("Should not get this case")
+#     end
 
-    if isreal(z) && real(z)>=1 
-        total -= 2*pi*im*μ^(s-1)/gamma(s)
-    end
-    return (total,k)
-end
+#     if isreal(z) && real(z)>=1 
+#         total -= 2*pi*im*μ^(s-1)/gamma(s)
+#     end
+#     return (total,k)
+# end

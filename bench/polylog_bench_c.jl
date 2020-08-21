@@ -1,6 +1,4 @@
-# Check polylog
-#    Compare Series 1 and 2 on inside the unit circle
-# 
+# check polylog reciprocal component
 using Polylogarithms
 using BenchmarkTools
 using DataFrames, CSV
@@ -11,13 +9,15 @@ include("utilities.jl")
 series_1 = Polylogarithms.polylog_series_1
 series_2 = Polylogarithms.polylog_series_2
 series_3 = Polylogarithms.polylog_series_3
+polylog_reciprocal = Polylogarithms.polylog_reciprocal 
 L = Symbol("Li_s(z)")
     
 
 # input data from Mathematica and reparse into complex numbers
-#for C=1:3
-    C = 5
-    filename = @sprintf("../data/polylog_test_data_a_%d.csv", C)
+for C=1:6
+    # C = 1
+    println("C = $C")
+    filename = @sprintf("../data/polylog_test_data_c_%d.csv", C)
     data1 = CSV.read(filename; delim=",", type=String)
     #    has trouble reading in numbers like "2." so read all into strings, and parse
     data1[!,:s] = parse.(Complex{Float64}, data1[!,:s] )
@@ -41,13 +41,14 @@ L = Symbol("Li_s(z)")
     m = size(data1,1)
     Li = data1[!,L]
     s = data1[!,:s]
+    r = unique( data1[!,:r])
     su = unique(s)
     if length(su) > 1
         error()
     else
         su = su[1]
         println("")
-        @printf("s = %f + %f i", real(su), imag(su))
+        @printf("  s = %f + %f i", real(su), imag(su))
     end
     S1 = zeros(Complex{Float64}, m)
     S2 = zeros(Complex{Float64}, m)
@@ -60,17 +61,21 @@ L = Symbol("Li_s(z)")
     
     for i=1:m
         # print(".")
-        result1 = series_1(s[i], z[i])
+        result1 = polylog_reciprocal(s[i], z[i])
         S1[i] = result1[1]
         n1[i] = result1[2]
         error1[i] = abs( S1[i] - Li[i]  )
         rel_error1[i] = error1[i]/abs( Li[i] )
-        
-        result2 = series_2(s[i], z[i])
-        S2[i] = result2[1]
-        n2[i] = result2[2]
-        error2[i] = abs( S2[i] - Li[i]  )
-        rel_error2[i] = error2[i]/abs( Li[i] )
+
+        if real(s[i])>0 && abs(real(s[i]) - round(s[i])) < 1.0e-3
+            rel_error2[i] = NaN
+        else
+            result2 = series_2(s[i], z[i])
+            S2[i] = result2[1]
+            n2[i] = result2[2]
+            error2[i] = abs( S2[i] - Li[i]  )
+            rel_error2[i] = error2[i]/abs( Li[i] )
+        end
     end
     println("   max abs. error1 = $(maximum( abs.(error1) ))")
     println("   max abs. error2 = $(maximum( abs.(error2) ))")
@@ -86,27 +91,27 @@ L = Symbol("Li_s(z)")
     semilogy( data1[!,:r] .+ d, rel_error2, "rd"; markersize=ms)
     xlabel("|z|")
     ylabel("relative absolute error")
-    plot([0,1.1], [1,1]*Polylogarithms.default_accuracy)
-    xlim([0, 1.15])
+    plot([minimum(r), maximum(r)], [1,1]*Polylogarithms.default_accuracy)
+    # xlim([0, 1.15])
     # ylim([1.0-e15, 1.0e-10])
     
     subplot(223)
     semilogy( data1[!,:r] .- d, n1, "o"; markersize=ms)
     semilogy( data1[!,:r] .+ d, n2, "rd"; markersize=ms)
-    θ = unique(data1[!,:theta])
-    for i=1:length(θ)
-        k = findall(data1[!,:theta] .== θ[i])
-        plot(data1[k,:r] .+ d, n2[k], "r-"; linewidth=0.5)
-        text(data1[k[end],:r]+2*d, n2[k[end]], "$(θ[i]/π)"; verticalalignment="center", fontsize=9)
-    end
-    text(0.92, 65, "arg(z)/π"; verticalalignment="center")
+    # θ = unique(data1[!,:theta])
+    # for i=1:length(θ)
+    #     k = findall(data1[!,:theta] .== θ[i])
+    #     plot(data1[k,:r] .+ d, n2[k], "r-"; linewidth=0.5)
+    #     text(data1[k[end],:r]+2*d, n2[k[end]], "$(θ[i]/π)"; verticalalignment="center", fontsize=9)
+    # end
+    # text(0.92, 65, "arg(z)/π"; verticalalignment="center")
     xlabel("|z|")
     ylabel("number of terms")
-    plot([0,1.1], [1,1]*Polylogarithms.default_max_iterations, "--")
-    xlim([0, 1.15])
+    plot([minimum(r), maximum(r)], [1,1]*Polylogarithms.default_max_iterations, "--")
+    # xlim([0, 1.15])
     
     subplot(222)
-    semilogy( data1[!,:theta] ./ π .- d, rel_error1, "o"; label="Series 1", markersize=ms)
+    semilogy( data1[!,:theta] ./ π .- d, rel_error1, "o"; label="Reciprocal + Series 1", markersize=ms)
     semilogy( data1[!,:theta] ./ π .+ d, rel_error2, "rd"; label="Series 2", markersize=ms)
     xlabel("arg(z)/π")
     ylabel("relative absolute error")
@@ -121,6 +126,7 @@ L = Symbol("Li_s(z)")
     plot([-0.05,1.05], [1,1]*Polylogarithms.default_max_iterations, "--")
     
     # savefig(@sprintf("plots/polylog_bench_a_%02d.svg", C))
-    savefig(@sprintf("plots/polylog_bench_a_%02d.pdf", C); bbox_inches="tight")
-#end
+    savefig(@sprintf("plots/polylog_bench_c_%02d.pdf", C); bbox_inches="tight")
+
+end
 
