@@ -8,7 +8,7 @@ include("test_defs.jl")
 include("../bench/utilities.jl")
 Q = Polylogarithms.Q
 
-@testset "Polylogarithm polylog" begin
+@testset "Polylogarithm polylog identies and special values" begin
     
     # check throws errors
     @testset "    throws errors" begin
