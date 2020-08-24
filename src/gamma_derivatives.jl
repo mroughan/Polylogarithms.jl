@@ -8,6 +8,8 @@ using Printf
 
 Derive a table of derivatives of the Gamma function at 1, i.e., Gamma^{(m)}(a)
 
+This code is used to create the results, which are included in the main code via a lookup table.
+
 """
 function gamma_derivatives(k::Integer, x::Float64)
     #    general form from: http://erikerlandson.github.io/blog/2016/06/15/computing-derivatives-of-the-gamma-function/
