@@ -73,6 +73,5 @@ end
 #         for k=1:m
 #             total += log(k)^n / k
 #         end
-#         @printf "γ_%d = %30.20f\n" n total
 #     end
 # end
