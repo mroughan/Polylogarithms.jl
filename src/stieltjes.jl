@@ -46,7 +46,8 @@ function stieltjes(n::Integer)
     #          ]
 
     # at the moment these are just Float64, so most of the precision below is lost
-    # would be better to make these "Irrational" but that can wait a little
+    # would be better to make these "Irrational" but that can wait a little as there
+    # are worse pieces of the code
     stieltjes = [γ, 
              -0.0728158454836767248605863758749013191377363383, 	# A082633
              -0.0096903631928723184845303860352125293590658061, 	# A086279

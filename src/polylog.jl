@@ -4,6 +4,9 @@ const default_max_iterations = 1000
 const near_int_threshold = 1.0e-6
 const series_transition_threshold = 0.25
 
+struct Diagnostics # this immutable type has no fields, so constructing it is essentially free
+end
+
 """
     polylog(s, z)
 
@@ -22,16 +25,52 @@ There are additional keywords, but these are currently intended for testing not 
 
 ## Output Arguments
 * `Li_s(z)`: The result
+
+## Examples
+```jldoctest
+julia> polylog(0.35, 0.2)
+0.23803890574407033
+```
+"""
+function polylog(s::Number, z::Number;
+                 level=1, # keep track of recursion
+                 accuracy::Float64=default_accuracy,
+                 min_iterations::Int64=0,
+                 max_iterations::Int64=default_max_iterations)
+    polylog(s, z, Diagnostics();
+            level=level, accuracy=accuracy, min_iterations=min_iterations, max_iterations=max_iterations)[1] # just output the result
+end
+
+# this is the main version, but outputs diagnosstics, which I guess most people won't want
+"""
+    polylog(s, z, Diagnostics())
+
+Calculates the Polylogarithm function `Li_s(z)` defined by
+
+``` L_s = \\sum_{n=1}^{\\infty} \\frac{z^n}{n^s}```
+
+Uses double precision complex numbers (not arbitrary precision).
+It's goal is an relative error bound 10^{-12}.
+ 
+## Input Arguments
+* `s::Complex`: the 'fractional' parameter
+* `z::Complex`: the point at which to calculate it
+* `::Diagnostics`: use this to indicate that the output should include extra information
+
+There are additional keywords, but these are currently intended for testing not use.
+
+## Output Arguments
+* `Li_s(z)`: The result
 * `n`:       The number of elements used in each series
 * 'series`:  The series used to compute results (4 = reciprocal)
 
 ## Examples
 ```jldoctest
-julia> polylog(0.35, 0.2)
+julia> polylog(0.35, 0.2, Diagnostics() )
 (0.23803890574407033, 17, 1)
 ```
 """
-function polylog(s::Number, z::Number;
+function polylog(s::Number, z::Number, ::Diagnostics;
                  level=1, # keep track of recursion
                  accuracy::Float64=default_accuracy,
                  min_iterations::Int64=0,
@@ -40,7 +79,15 @@ function polylog(s::Number, z::Number;
     μ = log(convert(Complex{Float64}, z)) # input z could be an integer or anything
     t = abs(μ/twoπ)
     T = 0.512 # the duplication formula seems to work if T=0.5 in the small associated wedge, but wyh risk it?
-    if abs(z) <= 0.5 && abs(z) < t
+    if abs(μ) < 1.0e-14
+        # deal with this case separately or it causes pain in Series 2 and 3, which should be resolvable, but its just easier here
+        # there are lots of other special cases to add here eventually
+        if real(s) > 1
+            return SpecialFunctions.zeta(s), 0, 0
+        else
+            return typeof(z)(Inf), 0 , 0
+        end
+    elseif abs(z) <= 0.5 && abs(z) < t
         return polylog_series_1(s, z; accuracy=accuracy, min_iterations=min_iterations, max_iterations=max_iterations)
     elseif t <= T && ( abs(round(real(s))-s) > tau_threshold || real(s)<= 0 )
         return polylog_series_2(s, z; accuracy=accuracy, min_iterations=min_iterations, max_iterations=max_iterations)
@@ -136,9 +183,11 @@ function polylog_duplication(s::Number, z::Number;
     z = convert(Complex{Float64}, z)
     f = min( 0.5, 2.0^(1-real(s)) )
     # println("  dup level $level, z=$z,  abs(μ)/2π = ", abs(log(z))/twoπ  )
-    (Li1, k1, series1) = polylog(s,  sqrt(z); level=level+1, accuracy=f*accuracy,
+    (Li1, k1, series1) = polylog(s,  sqrt(z), Diagnostics();
+                                 level=level+1, accuracy=f*accuracy,
                                  min_iterations=min_iterations, max_iterations=max_iterations)
-    (Li2, k2, series2) = polylog(s, -sqrt(z); level=level+1, accuracy=f*accuracy,
+    (Li2, k2, series2) = polylog(s, -sqrt(z), Diagnostics();
+                                 level=level+1, accuracy=f*accuracy,
                                  min_iterations=min_iterations, max_iterations=max_iterations)
     if typeof(s) <: Real
         s = convert(Float64, s) # convert s into a double
@@ -253,7 +302,8 @@ function polylog_series_2(s::Number, z::Number;
     k = 0
     a = Inf
     a_2 = Inf
-    A = abs( 2.0*twoπ^real(s) * exp(abs(imag(π*s)))  )
+    # A = abs( 2.0*twoπ^real(s) * exp(abs(imag(π*s)))  )
+    # this doesn't work if z=1.0, and hence μ=0, even when that converges, but should already be delt with
     while k<=max_iterations && ~converged
         a_3 = a_2
         a_2 = a
@@ -303,15 +353,20 @@ end
 
 function Q(n::Integer, τ::Number, ℒ::Number; n_terms::Integer=5) # Crandall,2012, p.35
     # τ is the distance from the pole s=n>0, ℒ = log(-μ) = log(-log( z ))
-    max_n_terms = 7
-    if n_terms < 1 || n_terms > max_n_terms
-        throw(DomainError(n_terms))
+    if abs(τ) <= 1.0e-14
+        # if really close to the integer, then ignore the extra terms
+        return c_closed(n, 0,  ℒ)
+    else
+        max_n_terms = 7
+        if n_terms < 1 || n_terms > max_n_terms
+            throw(DomainError(n_terms))
+        end
+        if n_terms <= 3
+            # use the direct method in this case
+            return Q_closed(n, τ, ℒ; n_terms=n_terms)
+        end
+        return sum( c_crandall.(n, 0:n_terms-1,  ℒ) .* τ.^(0:n_terms-1) )
     end
-    if n_terms <= 3
-        # use the direct method in this case
-        return Q_closed(n, τ, ℒ; n_terms=n_terms)
-    end
-    return sum( c_crandall.(n, 0:n_terms-1,  ℒ) .* τ.^(0:n_terms-1) )
 end
 
 function c_crandall(k::Integer, j::Integer,  ℒ) # Crandall,2012, p.35
@@ -385,7 +440,7 @@ function polylog_series_3(s::Number, z::Number;
     # end
     ℒ = log(complex(-μ))  # '\u2112'
     # total = μ^(n-1)*Q(n-1, τ, ℒ; n_terms=n_terms)/SpecialFunctions.gamma(n)
-    total = exp( (n-1)*log(complex(μ)^(n-1)) + log(Q(n-1, τ, ℒ; n_terms=n_terms))  - SpecialFunctions.loggamma(n) )
+    total = exp( (n-1)*log(μ) + log(Q(n-1, τ, ℒ; n_terms=n_terms))  - SpecialFunctions.loggamma(n) )
     converged = false
     a = Inf
     a_2 = Inf

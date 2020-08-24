@@ -60,6 +60,7 @@ function bernoulli(n::Int, x::Real)
     # return total
 
     # alternative, a little better, but relies on bernoulli numbers, which I only have to 35
+    # and still has some non-negligable errors, so I still would like a better piece in here
     if n <= 35
         total = 0.0
         for k = 0:n
@@ -67,16 +68,8 @@ function bernoulli(n::Int, x::Real)
         end
         return total
     else
+        # this is faster but less accurate, and runs into some weird problems, e.g.,
+        # SpecialFunctions.zeta(-6, -1.0) = NaN (probably should be 2)
         return -n*SpecialFunctions.zeta(1-n, x)
     end
 end
-
-# direct summation is slower than the zeta function approach above, even for small n
-# if n <= 34
-#     # direct summation for reasonably small values of coefficients
-#     total = 0.0
-#     for k=0:n
-#         total +=  binomial.(n,k) .* bernoulli.(k) .* x.^(n-k)
-#     end
-#     return total
-# else

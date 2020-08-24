@@ -10,6 +10,11 @@ include("../bench/utilities.jl")
     @testset "    throws errors" begin
         @test_throws DomainError bernoulli(-1)
         @test_throws DomainError bernoulli(36)
+        @test_throws MethodError bernoulli(1.0)
+    end
+
+    @testset "    types" begin
+        @test typeof(bernoulli(2)) == Rational{Int64}
     end
     
     @testset "    explicit cases" begin
@@ -33,8 +38,14 @@ end
 @testset "Bernoulli polynomials" begin
     @testset "    throws errors" begin
         @test_throws DomainError bernoulli(-1, 0.0)
+        @test_throws MethodError bernoulli(1.0, 0.0)
+        @test_throws MethodError bernoulli(1.0, 1)
     end
 
+    @testset "    types" begin
+        @test typeof(bernoulli(2, 1.0)) == Float64
+    end
+ 
     @testset "    consistency with Bernoulli numbers" begin
         for i=0:14
             @test Float64(bernoulli(i)) ≅ bernoulli(i, 0.0)

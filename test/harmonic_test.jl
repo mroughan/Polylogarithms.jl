@@ -9,8 +9,15 @@ include("test_defs.jl")
 
     @testset "    throws errors" begin
         @test_throws DomainError harmonic(-1)
+        @test_throws MethodError harmonic(Float32(1.0))
     end
     
+    @testset "    types" begin
+        @test typeof(harmonic(1)) == Float64
+        @test typeof(harmonic(1.0)) == Float64
+        @test typeof(harmonic(complex(1.0))) == Complex{Float64}
+    end
+
     @testset "    basics" begin
         @test harmonic(1) ≅ 1.0
         @test harmonic(2) ≅ 1.5
@@ -66,6 +73,14 @@ end
       
     @testset "    throws errors" begin
         @test_throws DomainError harmonic(-1, 1.2)
+        @test_throws MethodError harmonic(1.0, 1)
+        @test_throws MethodError harmonic(1.0, 1.0)
+        @test_throws MethodError harmonic(complex(1.0), 1)
+    end
+
+    @testset "    output types" begin
+        @test typeof(harmonic(1, 1)) == Float64
+        @test typeof(harmonic(1, 1.0)) == Float64
     end
 
     @testset "     identities" begin

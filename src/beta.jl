@@ -14,5 +14,5 @@ julia> beta( )
 ```
 """
 function dirichlet_beta(s::Number)
-    β = 4.0^(-s) * ( zeta(s,0.25) - zeta(s,0.75) )
+    β = 4.0^(-s) * ( SpecialFunctions.zeta(s,0.25) - SpecialFunctions.zeta(s,0.75) )
 end

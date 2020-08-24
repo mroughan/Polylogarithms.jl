@@ -55,11 +55,11 @@ rel_error1 = zeros(Float64, m)
 
 accuracy = 1.0e-12 # this is the default anyway, but can change it for testing
 # polylog(1.5, 0.4)
-polylog( complex(1.5), complex(0.4) )
+polylog( complex(1.5), complex(0.4), Diagnostics() )
 val, t, bytes, gctime, memallocs = @timed begin
     for i=1:m
         # print(".")
-        S1[i],  n1[i], series1[i] = polylog(s[i], z[i]; min_iterations=0, accuracy=accuracy )
+        S1[i],  n1[i], series1[i] = polylog(s[i], z[i], Diagnostics(); min_iterations=0, accuracy=accuracy )
         # S1[i] = result1[1]
         # n1[i] = result1[2]
         # series1[i] = result1[3]

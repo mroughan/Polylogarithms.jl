@@ -11,6 +11,7 @@ import SpecialFunctions
 # using Base.MPFR: ROUNDING_MODE, big_ln2
 
 export polylog, bernoulli, harmonic, stieltjes, dirichlet_beta
+export Diagnostics
 
 # @compat ComplexOrReal{T} = Union{T,Complex{T}}
 # s::ComplexOrReal{Float64}
