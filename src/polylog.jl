@@ -164,15 +164,15 @@ end
 #### note that for consistency they all have keywords arguments like "accuracy" but
 #### these aren't intended for general use, just for testing (at the moment)
 
-# calculate using the relationship to the Hurwitz zeta function
-function polylog_zeta(s::Number, z::Number, accuracy=default_accuracy)
-    # compute using the Hurwitz-zeta function identity
-    #   N.B. this doesn't seem to work as well as you might think
-    x = im * (log(convert(Complex{Float64}, -z)) / twoπ)
-    ss = 1-s
-    ip = im^ss
-    return ( SpecialFunctions.gamma(ss)/twoπ^(ss) ) * (ip * SpecialFunctions.zeta(ss, 0.5+x) + conj(ip) * SpecialFunctions.zeta(ss, 0.5-x))
-end
+# # calculate using the relationship to the Hurwitz zeta function
+# function polylog_zeta(s::Number, z::Number, accuracy=default_accuracy)
+#     # compute using the Hurwitz-zeta function identity
+#     #   N.B. this doesn't seem to work as well as you might think
+#     x = im * (log(convert(Complex{Float64}, -z)) / twoπ)
+#     ss = 1-s
+#     ip = im^ss
+#     return ( SpecialFunctions.gamma(ss)/twoπ^(ss) ) * (ip * SpecialFunctions.zeta(ss, 0.5+x) + conj(ip) * SpecialFunctions.zeta(ss, 0.5-x))
+# end
 
 # calculate using the duplication formula
 function polylog_duplication(s::Number, z::Number;
@@ -199,42 +199,42 @@ function polylog_duplication(s::Number, z::Number;
     return (2^(s-1) * ( Li1 + Li2 ), k1 + k2, 10+series1+series2)
 end
 
-# calculate using the reciprocal formula
-function polylog_reciprocal(s::Number, z::Number;
-                            accuracy::Float64=default_accuracy,
-                            min_iterations::Int64=0,
-                            max_iterations::Int64=default_max_iterations)
-    # z = convert(Complex{Float64}, z)
-    if abs(z) <= 1
-        throw(DomainError(z, "only use this function for |z|>1, and pref |z| > 2"))
-    end
-    # if abs(z) < 2
-    #     warn("Slow convergence for  |z| < 2")
-    # end
-    if abs(s) < 0.1*accuracy
-        return (z/(1-z), 0) # use the identity 
-    elseif real(s) < 0 &&  abs(imag(s)) < 0.1*accuracy && abs( round(s) - s ) < 0.1*accuracy
-        G = 0.0 # pole of the Gamma function
-        A = 0.0
-    else
-        # G = (twoπ*im)^s * SpecialFunctions.zeta( 1-s, 0.5 + log(complex(-z))/(twoπ*im) ) /  SpecialFunctions.gamma(s)
-        # A = twoπ*im*log(z)^(s-1) / SpecialFunctions.gamma(s)
-        tmp = exp( s*log(twoπ*im) - SpecialFunctions.loggamma(complex(s)) )  # (twoπ*im)^s /  SpecialFunctions.gamma(s)
-        G = tmp * SpecialFunctions.zeta( 1-s, 0.5 + log(complex(-z))/(twoπ*im) ) 
-        A = twoπ*im*log(z)^(s-1) / SpecialFunctions.gamma(s)
-    end
-    # accuracy of overall result depends on size of total, which includes these other parts 
-    (Li, k, series) = polylog_series_1(s, 1/z; accuracy=0.1*accuracy,
-                               min_iterations=min_iterations, max_iterations=max_iterations, existing_total=G)
-    F = complex(-1.0)^s * Li 
-    if ( imag(z) == 0 ) &&  ( real(z) >= 1 )
-        Θ = 1.0
-    else 
-        Θ = 0.0
-    end
-    # println("G = $G, F=$F, Θ=$Θ, A=$A")
-    return ( G - F - Θ*A, k, 3+series )
-end
+# # calculate using the reciprocal formula
+# function polylog_reciprocal(s::Number, z::Number;
+#                             accuracy::Float64=default_accuracy,
+#                             min_iterations::Int64=0,
+#                             max_iterations::Int64=default_max_iterations)
+#     # z = convert(Complex{Float64}, z)
+#     if abs(z) <= 1
+#         throw(DomainError(z, "only use this function for |z|>1, and pref |z| > 2"))
+#     end
+#     # if abs(z) < 2
+#     #     warn("Slow convergence for  |z| < 2")
+#     # end
+#     if abs(s) < 0.1*accuracy
+#         return (z/(1-z), 0) # use the identity 
+#     elseif real(s) < 0 &&  abs(imag(s)) < 0.1*accuracy && abs( round(s) - s ) < 0.1*accuracy
+#         G = 0.0 # pole of the Gamma function
+#         A = 0.0
+#     else
+#         # G = (twoπ*im)^s * SpecialFunctions.zeta( 1-s, 0.5 + log(complex(-z))/(twoπ*im) ) /  SpecialFunctions.gamma(s)
+#         # A = twoπ*im*log(z)^(s-1) / SpecialFunctions.gamma(s)
+#         tmp = exp( s*log(twoπ*im) - SpecialFunctions.loggamma(complex(s)) )  # (twoπ*im)^s /  SpecialFunctions.gamma(s)
+#         G = tmp * SpecialFunctions.zeta( 1-s, 0.5 + log(complex(-z))/(twoπ*im) ) 
+#         A = twoπ*im*log(z)^(s-1) / SpecialFunctions.gamma(s)
+#     end
+#     # accuracy of overall result depends on size of total, which includes these other parts 
+#     (Li, k, series) = polylog_series_1(s, 1/z; accuracy=0.1*accuracy,
+#                                min_iterations=min_iterations, max_iterations=max_iterations, existing_total=G)
+#     F = complex(-1.0)^s * Li 
+#     if ( imag(z) == 0 ) &&  ( real(z) >= 1 )
+#         Θ = 1.0
+#     else 
+#         Θ = 0.0
+#     end
+#     # println("G = $G, F=$F, Θ=$Θ, A=$A")
+#     return ( G - F - Θ*A, k, 3+series )
+# end
 
 # calculate using direct definition
 function polylog_series_1(s::Number, z::Number;
