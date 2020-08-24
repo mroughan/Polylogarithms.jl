@@ -4,7 +4,6 @@ using Test
 using DataFrames, CSV
 import Base.MathConstants: π, pi, ℯ, e, γ, eulergamma, catalan, φ, golden
 include("test_defs.jl")
-include("../bench/utilities.jl")
 
 @testset "Bernoulli numbers" begin
     @testset "    throws errors" begin

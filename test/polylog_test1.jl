@@ -5,7 +5,6 @@ using Test
 using DataFrames, CSV
 import Base.MathConstants: π, pi, ℯ, e, γ, eulergamma, catalan, φ, golden
 include("test_defs.jl")
-include("../bench/utilities.jl")
 Q = Polylogarithms.Q
 
 @testset "Polylogarithm polylog identies and special values" begin

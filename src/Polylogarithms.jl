@@ -12,10 +12,14 @@ import SpecialFunctions
 
 export polylog, bernoulli, harmonic, stieltjes, dirichlet_beta
 export Diagnostics
+export parse
 
 # @compat ComplexOrReal{T} = Union{T,Complex{T}}
 # s::ComplexOrReal{Float64}
 ComplexOrReal{T} = Union{T,Complex{T}}
+
+# Some extra parsing routines for reading Mathematics output, but also, complex numbers
+include("utilities.jl")
 
 # Constants
 include("constants.jl")
