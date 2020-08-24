@@ -23,7 +23,7 @@ julia> bernoulli(6)
 1 // 42
 ```
 """
-function bernoulli(n::Int)
+function bernoulli(n::Integer)
     # this just does a lookup -- seemed like it would be easier to code and faster
     # for the size of numbers I am working with
     if n<0

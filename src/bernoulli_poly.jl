@@ -24,7 +24,7 @@ julia> bernoulli(6, 1.2)
 0.008833523809524069
 ```
 """
-function bernoulli(n::Int, x::Real)
+function bernoulli(n::Integer, x::Real)
     if n<0
         throw(DomainError(n))
     end

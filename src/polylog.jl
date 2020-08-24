@@ -35,8 +35,8 @@ julia> polylog(0.35, 0.2)
 function polylog(s::Number, z::Number;
                  level=1, # keep track of recursion
                  accuracy::Float64=default_accuracy,
-                 min_iterations::Int64=0,
-                 max_iterations::Int64=default_max_iterations)
+                 min_iterations::Integer=0,
+                 max_iterations::Integer=default_max_iterations)
     polylog(s, z, Diagnostics();
             level=level, accuracy=accuracy, min_iterations=min_iterations, max_iterations=max_iterations)[1] # just output the result
 end
@@ -73,8 +73,8 @@ julia> polylog(0.35, 0.2, Diagnostics() )
 function polylog(s::Number, z::Number, ::Diagnostics;
                  level=1, # keep track of recursion
                  accuracy::Float64=default_accuracy,
-                 min_iterations::Int64=0,
-                 max_iterations::Int64=default_max_iterations)
+                 min_iterations::Integer=0,
+                 max_iterations::Integer=default_max_iterations)
     tau_threshold = 1.0e-3
     μ = log(convert(Complex{Float64}, z)) # input z could be an integer or anything
     t = abs(μ/twoπ)
@@ -178,8 +178,8 @@ end
 function polylog_duplication(s::Number, z::Number;
                              level=0, # keep track of recursion
                              accuracy::Float64=default_accuracy,
-                             min_iterations::Int64=0,
-                             max_iterations::Int64=default_max_iterations)
+                             min_iterations::Integer=0,
+                             max_iterations::Integer=default_max_iterations)
     z = convert(Complex{Float64}, z)
     f = min( 0.5, 2.0^(1-real(s)) )
     # println("  dup level $level, z=$z,  abs(μ)/2π = ", abs(log(z))/twoπ  )
@@ -202,8 +202,8 @@ end
 # # calculate using the reciprocal formula
 # function polylog_reciprocal(s::Number, z::Number;
 #                             accuracy::Float64=default_accuracy,
-#                             min_iterations::Int64=0,
-#                             max_iterations::Int64=default_max_iterations)
+#                             min_iterations::Integer=0,
+#                             max_iterations::Integer=default_max_iterations)
 #     # z = convert(Complex{Float64}, z)
 #     if abs(z) <= 1
 #         throw(DomainError(z, "only use this function for |z|>1, and pref |z| > 2"))
@@ -239,8 +239,8 @@ end
 # calculate using direct definition
 function polylog_series_1(s::Number, z::Number;
                           accuracy::Float64=default_accuracy,
-                          min_iterations::Int64=0,
-                          max_iterations::Int64=default_max_iterations,
+                          min_iterations::Integer=0,
+                          max_iterations::Integer=default_max_iterations,
                           existing_total::Number=0.0)
     # prolly should convert z to a double or complex-double
     if abs(z) > 1 || ( abs(z) ≈ 1  && real(s) <= 2)
@@ -274,8 +274,8 @@ end
 # this should not be used near positive integer values of s, but we allow it here in order to test
 function polylog_series_2(s::Number, z::Number;
                           accuracy::Float64=default_accuracy,
-                          min_iterations::Int64=0,
-                          max_iterations::Int64=default_max_iterations )
+                          min_iterations::Integer=0,
+                          max_iterations::Integer=default_max_iterations )
     μ = log(convert(Complex{Float64}, z)) # input z could be an integer or anything
     if typeof(s) <: Real
         s = convert(Float64, s) # convert s into a double
@@ -388,7 +388,7 @@ function b_crandall(k::Integer, j::Integer,  ℒ) # Crandall,2012, p.36
 end
 
 const gamma_t = [1.0,-0.5772156649015315,1.9781119906559432,-5.44487445648531,23.561474084025583,-117.83940826837748,715.0673625273184,-5019.848872629852,40243.62157333573,-362526.2891146549,3.627042412756892e6,-3.990708415143132e7,4.7894329176518273e8,-6.226641351546061e9,8.717563381070836e10]
-function g_crandall(t::Int) # Crandall,2012, p.17
+function g_crandall(t::Integer) # Crandall,2012, p.17
     # t derivate of Gamma function at 1
     # see "gamma_derivatives.jl" for derivations of these numbers
     if t<0
@@ -422,8 +422,8 @@ end
 # Calculate in a power series around z=1, and s=n    
 function polylog_series_3(s::Number, z::Number;
                           accuracy::Float64=default_accuracy,
-                          min_iterations::Int64=0,
-                          max_iterations::Int64=default_max_iterations,
+                          min_iterations::Integer=0,
+                          max_iterations::Integer=default_max_iterations,
                           n_terms::Integer=5 )
     μ = log(convert(Complex{Float64}, z))
     if abs(μ) > twoπ
@@ -472,8 +472,8 @@ end
 # # asymptotic expansion
 # function polylog_series_4(s::Number, z::Number;
 #                           accuracy::Float64=default_accuracy,
-#                           min_iterations::Int64=0,
-#                           max_iterations::Int64=default_max_iterations,
+#                           min_iterations::Integer=0,
+#                           max_iterations::Integer=default_max_iterations,
 #                           existing_total::Number=0.0)
 #     x = log(-convert(Complex{Float64}, z))
 #     total = 0.0
@@ -498,7 +498,7 @@ end
     
 # # Special case s=integer for use in testing etc. 
 #     function polylog(n::Integer, z::Number;
-#                       accuracy::Float64=default_accuracy, max_iterations::Int64=default_max_iterations )
+#                       accuracy::Float64=default_accuracy, max_iterations::Integer=default_max_iterations )
 #     L = Int(ceil(-log10(accuracy)*log2(10))) # revisit this limit
 #     k = 0
 #     if n>1
