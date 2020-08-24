@@ -10,7 +10,7 @@ include("utilities.jl")
 ##############################################
 # Bernoulli numbers
 B = Symbol("B_n")
-data1 = CSV.read("../data/bernoulli_test_data_1.csv")
+data1 = CSV.read("../data/bernoulli_test_data_1.csv", DataFrame)
 m = size(data1,1)
 B1 = zeros(Rational{Int64}, m)
 B1_ref = zeros(Rational{Int64}, m)
@@ -22,36 +22,61 @@ for i=1:m
     error1[i] = Float64( B1[i] - B1_ref[i]  )
     rel_error1[i] = error1[i]/Float64( B1_ref[i] )
 end
-println("max abs. error = $(maximum( abs.(error1) ))")
-
+println("max abs. error in Bernoulli numbers = $(maximum( abs.(error1) ))")
 
 ##############################################
 # Bernoulli polynomials: identities
 m = 20
-B2 = zeros(Float64, m)
-B2_ref = zeros(Rational{Int64}, m)
-error2 = zeros(Float64, m)
+B0 = zeros(Float64, m)
+B0_ref = zeros(Rational{Int64}, m)
+error0 = zeros(Float64, m)
 for i=1:m
-    B2_ref[i] = bernoulli( i )
-    B2[i] = bernoulli( i, 0.0 )
-    error2[i] = Float64( B2[i] - B2_ref[i]  )
+    B0_ref[i] = bernoulli( i )
+    B0[i] = bernoulli( i, 0.0 )
+    error0[i] = Float64( B0[i] - B0_ref[i]  )
 end
-figure(2)
+figure(0)
 clf()
-semilogy( 1:m, abs.(error2) )
+semilogy( 1:m, abs.(error0) )
 xlabel("n, (x=0.0)")
+xticks(1:m)
 ylabel("absolute error")
 # ylim( 1.0e-17, 1.0e-15)
 title("Bernoulli polynomials")
-savefig("plots/bernoulli_bench_2.pdf")
+savefig("plots/bernoulli_bench_0.pdf")
 
 ##############################################
 # Bernoulli polynomials: data v x
 B = Symbol("B_n(x)")
-data3 = CSV.read("../data/bernoulli_test_data_2.csv"; delim=",", type=String)
-data3[!,:n] = parse.(Float64, data3[!,:n] )
-data3[!,:x] = parse.(Float64, data3[!,:x] )
-data3[!,B] = parse.(Float64, data3[!,B] )
+data2 = CSV.read("../data/bernoulli_test_data_2.csv", DataFrame; delim=",", type=String)
+data2[!,:n] = parse.(Float64, data2[!,:n] )
+data2[!,:x] = parse.(Float64, data2[!,:x] )
+data2[!,B] = parse.(Float64, data2[!,B] )
+m = size(data2,1)
+B2 = zeros(Float64, m)
+B2_ref = zeros(Float64, m)
+error2 = zeros(Float64, m)
+rel_error2 = zeros(Float64, m)
+for i=1:m
+    B2[i] = bernoulli( Int(data2[i,:n]),  data2[i,:x])
+    B2_ref[i] = data2[i,B]
+    error2[i] = Float64( B2[i] - B2_ref[i]  )
+    rel_error2[i] = error2[i] / B2_ref[i]
+end
+figure(2)
+clf()
+semilogy( data2[!,:x], abs.(rel_error2) )
+xlabel("x, (n=12)")
+ylabel("absolute rel. error")
+# ylim( 1.0e-17, 1.0e-15)
+title("Bernoulli polynomials")
+savefig("plots/bernoulli_bench_2.pdf")
+
+
+##############################################u
+# Bernoulli polynomials: data v n
+B = Symbol("B_n(x)")
+data3 = CSV.read("../data/bernoulli_test_data_3.csv", DataFrame)
 m = size(data3,1)
 B3 = zeros(Float64, m)
 B3_ref = zeros(Float64, m)
@@ -65,37 +90,12 @@ for i=1:m
 end
 figure(3)
 clf()
-semilogy( data3[!,:x], abs.(rel_error3) )
-xlabel("x, (n=12)")
-ylabel("absolute rel. error")
-# ylim( 1.0e-17, 1.0e-15)
-title("Bernoulli polynomials")
-savefig("plots/bernoulli_bench_3.pdf")
-
-
-##############################################
-# Bernoulli polynomials: data v n
-B = Symbol("B_n(x)")
-data4 = CSV.read("../data/bernoulli_test_data_3.csv")
-m = size(data4,1)
-B4 = zeros(Float64, m)
-B4_ref = zeros(Float64, m)
-error4 = zeros(Float64, m)
-rel_error4 = zeros(Float64, m)
-for i=1:m
-    B4[i] = bernoulli( Int(data4[i,:n]),  data4[i,:x])
-    B4_ref[i] = data4[i,B]
-    error4[i] = Float64( B4[i] - B4_ref[i]  )
-    rel_error4[i] = error4[i] / B4_ref[i]
-end
-figure(4)
-clf()
-semilogy( data4[!,:n], abs.(rel_error4) )
+semilogy( data3[!,:n], abs.(rel_error3) )
 xlabel("n, (x=1.5)")
 ylabel("absolute rel. error")
 # ylim( 1.0e-17, 1.0e-15)
 title("Bernoulli polynomials")
-savefig("plots/bernoulli_bench_4.pdf")
+savefig("plots/bernoulli_bench_3.pdf")
 
 
 

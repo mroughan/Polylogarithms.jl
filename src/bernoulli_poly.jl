@@ -41,15 +41,34 @@ function bernoulli(n::Int, x::Real)
     elseif n == 5
          return x^5 - 2.5*x^4 +(5.0/3.0)*x^3 - x/6.0
     end
-    return -n*SpecialFunctions.zeta(1-n, x)# see https://carma.newcastle.edu.au/resources/jon/Preprints/Papers/Published-InPress/Oscillatory%20(Tapas%20II)/Papers/coffey-zeta.pdf, p.341
-
+    # return -n*SpecialFunctions.zeta(1-n, x)
+    # see https://carma.newcastle.edu.au/resources/jon/Preprints/Papers/Published-InPress/Oscillatory%20(Tapas%20II)/Papers/coffey-zeta.pdf, p.341
+    # however, I am not really happy with the results I am getting out of this
+    # so exploit symmetries in B_n(x) to compute recursively for x<=0
     # if x >= 0
     #      return -n*SpecialFunctions.zeta(1-n, x)
     # else
-    #     # comments in SpecialFunctions/gamma.jl that zeta(s,z) only works for Re(z)>0
-    #     # so exploit symmetries in B_n(x) to compute recursively for x<=0
     #     return bernoulli(n, x+1) - n*x^(n-1)
     # end
+
+    # total = 0.0
+    # for k = 0:n-1
+    #     total -= binomial(n+1, k) *  bernoulli(k,x)
+    # end
+    # total = total / (n+1)
+    # total += x^n
+    # return total
+
+    # alternative, a little better, but relies on bernoulli numbers, which I only have to 35
+    if n <= 35
+        total = 0.0
+        for k = 0:n
+            total += binomial(n, k) *  bernoulli(n-k) * x^k
+        end
+        return total
+    else
+        return -n*SpecialFunctions.zeta(1-n, x)
+    end
 end
 
 # direct summation is slower than the zeta function approach above, even for small n

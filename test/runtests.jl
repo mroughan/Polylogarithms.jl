@@ -1,13 +1,5 @@
-using Polylogarithms
-using Test
-using BenchmarkTools
-using CSV
+# each of these includes the bits it needs so don't do all includes here
+include("harmonic_test.jl")
+include("bernoulli_test.jl")
+# include("polylog_test.jl")
 
-
-# should test errors are correctly thrown 
-
-# should test types of outputs are correct
-
-@testset "Polylogarithms.jl" begin
-    # Write your tests here.
-end
