@@ -61,10 +61,13 @@ function bernoulli(n::Integer, x::Real)
 
     # alternative, a little better, but relies on bernoulli numbers, which I only have to 35
     # and still has some non-negligable errors, so I still would like a better piece in here
+    n = Int64(n) 
     if n <= 35
         total = 0.0
         for k = 0:n
+            k = Int64(k)
             total += binomial(n, k) *  bernoulli(n-k) * x^k
+            # this will overflow for large n and k, but that migth be avoidable if we were more clever?
         end
         return total
     else
