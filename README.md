@@ -4,3 +4,41 @@
 [![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://matthew.roughan@adelaide.edu.au.github.io/Polylogarithms.jl/dev)
 [![Build Status](https://travis-ci.com/matthew.roughan@adelaide.edu.au/Polylogarithms.jl.svg?branch=master)](https://travis-ci.com/matthew.roughan@adelaide.edu.au/Polylogarithms.jl)
 [![Coverage](https://codecov.io/gh/matthew.roughan@adelaide.edu.au/Polylogarithms.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/matthew.roughan@adelaide.edu.au/Polylogarithms.jl)
+
+This implements the
+[Polylogarithm](https://en.wikipedia.org/wiki/Polylogarithm#Relationship_to_other_functions)
+and some related functions that were needed (Harmonic numbers,
+Stieltjes constants, and Bernoulli numbers and polynomials).
+
+This is still a little experimental, but there is a fairly large test
+set that all works nicely.
+
+Note that the aimed for accuracy is 1.0e-12 relative error, but that
+occasional errors as large as 1.0e-11 have been seen. 
+
+# Functions
+
+ + `polylog(s, z)` the polylogarithm function
+ 
+ + `bernoulli(n)`  Provides the first 35 Bernoulli numbers
+ + `bernoulli(n,x)`  Provides the Bernoulli polynomials
+ 
+ + `harmonic(n)` Provides the Harmonic numbers
+ + `harmonic(n,r)` Provides the generalised Harmonic numbers
+ 
+ + `stieltjes(n)` Provides the first 10 [Stieltjes](https://en.wikipedia.org/wiki/Stieltjes_constants) (generalized Euler-Mascheroni) constants (see Abramowitz and Stegunm, 23.2.5) or 
+ 
+ + `dirichlet_beta(z)` Provides the Dirichlet beta function
+ 
+
+# Examples
+
+```
+julia> using Polylogarithms
+julia> polylog(2.0, 1.0)
+1.6449340668482273
+```
+
+
+
+
