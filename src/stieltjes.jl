@@ -52,23 +52,10 @@ julia> stieltjes(0)
 ```
 """
 function stieltjes(n::Integer)
-    if n<0 || n>10
+    if n<0
         throw(DomainError(n))
     elseif n>10
-        throw(DomainError(n, "Only the fest 11 Stieltjes numbers are defined so far."))
+        throw(DomainError(n, "Only the first 11 Stieltjes numbers are defined so far."))
     end
     return stieltjes_n[n+1]
 end
-
-# old crude computation
-# function gen_euler_calc()
-#     # N.B. by default
-#     #  log^0(1) = 1
-#     for n=0:10
-#         m = 100000000 # just choose a big value for the moment
-#         total = -log(m)^(n+1) / (n+1)
-#         for k=1:m
-#             total += log(k)^n / k
-#         end
-#     end
-# end
