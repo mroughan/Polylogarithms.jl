@@ -11,7 +11,7 @@ os:
 #  - windows
 arch:
   - x64
-#  - x86
+  - x86
 cache:
   directories:
     - ~/.julia/artifacts
