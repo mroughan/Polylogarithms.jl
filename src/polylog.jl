@@ -283,8 +283,6 @@ function polylog_series_2(s::Number, z::Number;
         s = convert(Float64, s) # convert s into a double
     elseif typeof(s) <: Complex
         s = convert(Complex{Float64}, s) # convert s into doubles
-    else
-        throw(DomainError(s), "s has a weird type $(typeof(s))")
     end
     # println("μ = $μ") 
     if abs(μ) > twoπ
