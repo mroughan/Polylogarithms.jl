@@ -12,7 +12,7 @@
 * ``x`` `::Real`: the point at which to calculate the polynomial
 
 ## Examples
-```jldoctest
+```jldoctest; setup = :(using Polylogarithms)
 julia> bernoulli(6, 1.2)
 0.008833523809524735
 ```

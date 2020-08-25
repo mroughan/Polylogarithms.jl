@@ -29,7 +29,7 @@ There are additional keywords, but these are currently intended for testing not 
 * ``Li_s(z)``: The result
 
 ## Examples
-```jldoctest
+```jldoctest; setup = :(using Polylogarithms)
 julia> polylog(0.35, 0.2)
 0.23803890574407033
 ```
@@ -69,7 +69,7 @@ There are additional keywords, but these are currently intended for testing not 
 * `series`:    The series used to compute results (4 = reciprocal)
 
 ## Examples
-```jldoctest
+```jldoctest; setup = :(using Polylogarithms)
 julia> polylog(0.35, 0.2, Diagnostics() )
 (0.23803890574407033, 17, 1)
 ```

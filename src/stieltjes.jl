@@ -17,7 +17,7 @@
 * `n::Integer`: the number of elements to compute.
 
 ## Examples
-```jldoctest
+```jldoctest; setup = :(using Polylogarithms)
 julia> stieltjes(0)
 0.5772156649015329
 ```

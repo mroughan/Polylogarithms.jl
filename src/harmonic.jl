@@ -8,7 +8,7 @@
 * ``n`` `::Integer`: non-negative index of the Harmonic number to calculate
 
 ## Examples
-```jldoctest
+```jldoctest; setup = :(using Polylogarithms)
 julia> harmonic(2)
 1.5
 ```
@@ -40,7 +40,7 @@ end
 * ``x`` `::ComplexOrReal{Float64}`: index of the Harmonic number to calculate
 
 ## Examples
-```jldoctest
+```jldoctest; setup = :(using Polylogarithms)
 julia> harmonic(2.0)
 1.5000000000000016
 ```
@@ -63,7 +63,7 @@ end
 It should be possible to extend this to complex r, but that requires more testing.
 
 ## Examples
-```jldoctest
+```jldoctest; setup = :(using Polylogarithms)
 julia> harmonic(2,1.5)
 1.3535533905932737
 ```

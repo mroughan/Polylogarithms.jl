@@ -10,7 +10,7 @@ import Base: parse
 * `s::AbstractString`: the string to parse
 
 ## Examples
-```jldoctest
+```jldoctest; setup = :(using Polylogarithms)
 julia> parse( Complex{Float64}, "1.2 - 3.1*I")
 1.2 + 3.1im
 ```
@@ -45,7 +45,7 @@ end
 * `s::AbstractString`: the string to parse
 
 ## Examples
-```jldoctest
+```jldoctest; setup = :(using Polylogarithms)
 julia> parse( Rational{Int64}, "1 / 2")
 1//2
 ```
