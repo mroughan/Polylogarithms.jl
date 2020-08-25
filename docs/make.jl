@@ -1,10 +1,12 @@
 using Polylogarithms
 using Documenter
 
+DocMeta.setdocmeta!(Polylogarithms, :DocTestSetup, :(using Polylogarithms); recursive=true)
+
 makedocs(;
     modules=[Polylogarithms],
     authors="Matthew Roughan <matthew.roughan@adelaide.edu.au> and contributors",
-    repo="https://github.com/matthew.roughan@adelaide.edu.au/Polylogarithms.jl/blob/{commit}{path}#L{line}",
+    repo="https://github.com/mroughan/Polylogarithms.jl/blob/{commit}{path}#L{line}",
     sitename="Polylogarithms.jl",
     format=Documenter.HTML(;
         prettyurls=get(ENV, "CI", "false") == "true",
@@ -17,5 +19,5 @@ makedocs(;
 )
 
 deploydocs(;
-    repo="github.com/matthew.roughan@adelaide.edu.au/Polylogarithms.jl",
+    repo="github.com/mroughan/Polylogarithms.jl",
 )

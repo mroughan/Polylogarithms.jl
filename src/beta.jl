@@ -1,16 +1,16 @@
 """
     dirichlet_beta()
 
- Calculates Dirichlet beta function
-     https://en.wikipedia.org/wiki/Dirichlet_beta_function
+ Calculates Dirichlet beta function,
+     [https://en.wikipedia.org/wiki/Dirichlet_beta_function](https://en.wikipedia.org/wiki/Dirichlet_beta_function)
   
 ## Arguments
-* `s::Number`: 
+* ``s`` `::Number`: it should work for any type of number, but mainly tested for `Complex{Float64}`
 
 ## Examples
 ```jldoctest
-julia> beta( )
-
+julia> dirichlet_beta(1.5)
+0.8645026534612017
 ```
 """
 function dirichlet_beta(s::Number)

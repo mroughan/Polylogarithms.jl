@@ -1,27 +1,20 @@
 """
     bernoulli(n, x)
 
- Calculates Bernoulli polynomials from the Hurwitz-zeta function using
-
-```ζ(-n,x) = -B_{n+1}(x)/(n+1), for Re(x)>0,```
-
- which is faster than direct calculation of the polynomial except for n<=4, but for 
- small n (n<=5) we use the exact polynomials. For negative x, we use the recursive
- formula to push it into a postive range. 
-
+ Calculates Bernoulli polynomials ``B_n(x)``
  e.g., see
  
- + https://en.wikipedia.org/wiki/Bernoulli_polynomials
- + http://dlmf.nist.gov/24
+ + [https://en.wikipedia.org/wiki/Bernoulli_polynomials](https://en.wikipedia.org/wiki/Bernoulli_polynomials)
+ + [http://dlmf.nist.gov/24](http://dlmf.nist.gov/24)
 
 ## Arguments
-* `n::Integer`: the index into the series, n=0,1,2,3,...
-* `x::Real`: the point at which to calculate the polynomial
+* ``n`` `::Integer`: the index into the series, ``n=0,1,2,3,...``
+* ``x`` `::Real`: the point at which to calculate the polynomial
 
 ## Examples
 ```jldoctest
 julia> bernoulli(6, 1.2)
-0.008833523809524069
+0.008833523809524735
 ```
 """
 function bernoulli(n::Integer, x::Real)
@@ -41,7 +34,15 @@ function bernoulli(n::Integer, x::Real)
     elseif n == 5
          return x^5 - 2.5*x^4 +(5.0/3.0)*x^3 - x/6.0
     end
-    # return -n*SpecialFunctions.zeta(1-n, x)
+
+ # from the Hurwitz-zeta function using
+
+ # ``ζ(-n,x) = -B_{n+1}(x)/(n+1), for Re(x)>0,``
+
+ # which is faster than direct calculation of the polynomial except for n<=4, but for 
+ # small n (n<=5) we use the exact polynomials. For negative x, we use the recursive
+ # formula to push it into a postive range. 
+     # return -n*SpecialFunctions.zeta(1-n, x)
     # see https://carma.newcastle.edu.au/resources/jon/Preprints/Papers/Published-InPress/Oscillatory%20(Tapas%20II)/Papers/coffey-zeta.pdf, p.341
     # however, I am not really happy with the results I am getting out of this
     # so exploit symmetries in B_n(x) to compute recursively for x<=0

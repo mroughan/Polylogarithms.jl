@@ -46,8 +46,8 @@ end
 
 ## Examples
 ```jldoctest
-julia> parse( Complex{Float64}, "1.2 - 3.1*I")
-1.2 + 3.1im
+julia> parse( Rational{Int64}, "1 / 2")
+1//2
 ```
 """
 function parse(::Type{Rational{T}}, x::AbstractString) where {T<:Integer}

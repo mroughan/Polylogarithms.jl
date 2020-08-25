@@ -1,26 +1,28 @@
 """
     bernoulli(n)
 
- Calculates the first 34 Bernoulli numbers B_n  (of the first-kind or NIST type) 
+ Calculates the first 35 Bernoulli numbers ``B_n``  (of the first-kind or NIST type) 
  e.g., see
 
- + http://mathworld.wolfram.com/BernoulliNumber.html
- + https://en.wikipedia.org/wiki/Bernoulli_number
- + http://dlmf.nist.gov/24
+ + [http://mathworld.wolfram.com/BernoulliNumber.html](http://mathworld.wolfram.com/BernoulliNumber.html)
+ + [https://en.wikipedia.org/wiki/Bernoulli_number](https://en.wikipedia.org/wiki/Bernoulli_number)
+ + [http://dlmf.nist.gov/24](http://dlmf.nist.gov/24)
 
- N.B. Bernoulli numbers of second kind only seem to differ in that B_1 = + 1/2 (instead of -1/2)
+ N.B. Bernoulli numbers of second kind only seem to differ in that ``B_1 = + 1/2`` (instead of -1/2)
 
 ## Arguments
-* `n::Integer`: the index into the series, n=0,1,2,3,...,34 (for larger n use ``bernoulli(n,0.0)`` )
+* ``n`` `::Integer`: the index into the series, ``n=0,1,2,3,...,35`` (for larger ``n`` use `bernoulli(n,0.0)` )
 
- We only provide the 1st 34 (even) values as beyond this, we can't
+ We only provide the 1st 36 values as beyond this, we can't
  return Int64 rationals, so best to compute the real approximation
- using ``bernoulli(n,0.0). Odd values for n>1 are all zero.``
+ using `bernoulli(n,0.0)`. 
+
+ Odd values for ``n>1`` are all zero.
 
 ## Examples
-```jldoctest
+```jldoctest; setup = :(using Polylogarithms)
 julia> bernoulli(6)
-1 // 42
+1//42
 ```
 """
 function bernoulli(n::Integer)
@@ -30,8 +32,8 @@ function bernoulli(n::Integer)
         throw(DomainError(n))
     elseif n > 1 && isodd(n)
         return 0 // 1
-    elseif n>34
-        throw(DomainError(n, "If n > 34, then the numerator needs Int128 at least, and worse, so this code is not the code you want. Try using bernoulli(n, 0.0) to get a floating point approximation to the result."))
+    elseif n > 35
+        throw(DomainError(n, "If n > 35, then the numerator needs Int128 at least, and worse, so this code is not the code you want. Try using bernoulli(n, 0.0) to get a floating point approximation to the result."))
     end
 
     # Denominator of Bernoulli number B_n
