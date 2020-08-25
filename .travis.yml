@@ -24,16 +24,14 @@ jobs:
       os: osx
   include:
     - stage: Documentation
-      julia: 1
-      script: |
-        julia --project=docs -e '
-          using Pkg
-          Pkg.develop(PackageSpec(path=pwd()))
-          Pkg.instantiate()
-          using Documenter: doctest
-          using Polylogarithms
-          doctest(Polylogarithms)
-          include("docs/make.jl")'
+      julia: 1.4
+      os: linux
+      script:
+        - julia --project=docs/ -e '
+            using Pkg
+            Pkg.develop(PackageSpec(path=pwd()))
+            Pkg.instantiate()
+	- julia --color=yes --project=docs/ docs/make.jl
       after_success: skip
 after_success:
   - |
