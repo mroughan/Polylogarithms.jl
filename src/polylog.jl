@@ -197,8 +197,6 @@ function polylog_duplication(s::Number, z::Number;
         s = convert(Float64, s) # convert s into a double
     elseif typeof(s) <: Complex
         s = convert(Complex{Float64}, s) # convert s into doubles
-    else
-        throw(DomainError(s), "s has a weird type $(typeof(s))")
     end
     return (2^(s-1) * ( Li1 + Li2 ), k1 + k2, 10+series1+series2)
 end
