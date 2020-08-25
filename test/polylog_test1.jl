@@ -15,6 +15,8 @@ Q = Polylogarithms.Q
         # @test_throws MethodError polylog( 1, Float32(0.0))  # should work for all numbers
         @test_throws MethodError polylog( 1, "1.0")  # should work for all numbers
         @test_throws MethodError polylog( "1.0", 1)  # should work for all numbers
+        @test_throws MethodError polylog( 1 )
+        # @test_throws ArgumentError polylog( 1 )
     end 
 
     # check output types
@@ -24,6 +26,49 @@ Q = Polylogarithms.Q
         # we need to do some more testing here and consider carefully how consistent this should be
     end
  
+    # check keywords work
+    @testset "    output types" begin
+        @test polylog(-1, 0; level=1, accuracy=1.0e-5,  min_iterations=1, max_iterations=100) ≈ 0.0
+    end
+ 
+    # check subsidary routine errors, just to make coverage cleaner
+    @testset "    unexported function errors" begin
+        @test_throws DomainError Polylogarithms.polylog_series_1(1.0, 2.0)
+        @test_throws DomainError Polylogarithms.polylog_series_1(1.0, 0.75)
+        @test_throws DomainError Polylogarithms.polylog_series_2(1.0, 0.0)
+        @test_throws DomainError Polylogarithms.polylog_series_3(1.0, 0.0)
+        @test_throws DomainError Polylogarithms.polylog_series_3(-1.0, 0.6)
+        @test_throws DomainError Polylogarithms.g_crandall(-1)
+        @test_throws DomainError Polylogarithms.g_crandall(15)
+        τ = 0.00001
+        @test_throws DomainError Polylogarithms.Q_closed(0, τ, 0; n_terms=0)
+        @test_throws DomainError Polylogarithms.Q_closed(0, τ, 0; n_terms=4)
+        @test_throws DomainError Polylogarithms.Q(0, τ, 0; n_terms=0)
+        @test_throws DomainError Polylogarithms.Q(0, τ, 0; n_terms=8)
+     end
+
+    @testset "    unexported function values" begin
+        ℒ = 0.1
+        d2 = SpecialFunctions.digamma(1) - ℒ
+        @test Polylogarithms.c_closed(0, 0, ℒ) ≈ harmonic(0) - ℒ
+        @test Polylogarithms.c_closed(0, 1, ℒ) ≈ -stieltjes(1)   - d2^2/2      - π^2/6 + SpecialFunctions.polygamma(1,1)/2
+        @test Polylogarithms.c_closed(0, 2, ℒ) ≈  stieltjes(2)/2 + d2^3/6 + d2*( π^2/6 - SpecialFunctions.polygamma(1,1)/2 ) +
+                                                       SpecialFunctions.polygamma(2,1)/6
+        for n=0:3
+            @test Polylogarithms.c_closed(n, 0, ℒ) ≈ Polylogarithms.c_crandall(n, 0, ℒ)
+            @test Polylogarithms.c_closed(n, 1, ℒ) ≈ Polylogarithms.c_crandall(n, 1, ℒ)
+            @test Polylogarithms.c_closed(n, 2, ℒ) ≈ Polylogarithms.c_crandall(n, 2, ℒ)
+        end
+        for k = 1:5
+            @test Polylogarithms.f_crandall(k,1) == -harmonic(k)
+        end
+        @test Polylogarithms.g_crandall(1) ≈ -γ
+
+        τ = 0.00001
+        n = 1
+        @test Polylogarithms.Q_closed(n, τ, ℒ; n_terms=3) == Polylogarithms.Q(n, τ, ℒ; n_terms=3)
+    end
+
     # check it can handle all types of inputs
     @testset "    input formats" begin
         @test polylog(-1.0, 0.0) ≈ 0.0

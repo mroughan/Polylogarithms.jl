@@ -284,7 +284,7 @@ function polylog_series_2(s::Number, z::Number;
     end
     # println("μ = $μ") 
     if abs(μ) > twoπ
-        throw(DomainError(z), "we need |log(z)|< 2π for this series")
+        throw(DomainError(z, "we need |log(z)|< 2π for this series"))
     end
     # if real(s) > 0
         # min_iterations = ceil( real(s) ) + 1

@@ -33,9 +33,9 @@ jobs:
             Pkg.instantiate()
             using Documenter: doctest
             using Polylogarithms
-            doctest(Polylogarithms)
+            DocMeta.setdocmeta!(Polylogarithms, :DocTestSetup, :(using Polylogarithms); recursive=true)
+	    doctest(Polylogarithms)
             include("docs/make.jl")'
-        - julia --color=yes --project=docs/ docs/make.jl
       after_success: skip
 after_success:
   - |
