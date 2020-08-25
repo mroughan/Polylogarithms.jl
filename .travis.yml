@@ -11,7 +11,7 @@ os:
 #  - windows
 arch:
   - x64
-  - x86
+#  - x86
 cache:
   directories:
     - ~/.julia/artifacts
@@ -27,7 +27,7 @@ jobs:
       julia: 1.4
       os: linux
       script: |
-        - julia --project=docs --color=yes -e' 
+        julia --project=docs --color=yes -e' 
             using Pkg
             Pkg.develop(PackageSpec(path=pwd()))
             Pkg.instantiate()
