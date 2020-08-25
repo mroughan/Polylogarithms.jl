@@ -26,8 +26,8 @@ jobs:
     - stage: Documentation
       julia: 1.4
       os: linux
-      script:
-        - | julia --project=docs -e' 
+      script: |
+        - julia --project=docs -e' 
             using Pkg
             Pkg.develop(PackageSpec(path=pwd()))
             Pkg.instantiate()
