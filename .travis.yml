@@ -4,11 +4,11 @@ notifications:
   email: false
 julia:
   - 1.4
-  - nightly
+#  - nightly
 os:
   - linux
-  - osx
-  - windows
+#  - osx
+#  - windows
 arch:
   - x64
   - x86
@@ -27,7 +27,7 @@ jobs:
       julia: 1.4
       os: linux
       script: |
-        - julia --project=docs -e' 
+        - julia --project=docs --color=yes -e' 
             using Pkg
             Pkg.develop(PackageSpec(path=pwd()))
             Pkg.instantiate()

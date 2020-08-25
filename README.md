@@ -40,6 +40,10 @@ julia> polylog(2.0, 1.0)
 ```
 
 
+# Docs
+
+See ...
+
 # Details
 
 Extended details of the algorithms being used here are provided at ...
