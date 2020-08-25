@@ -31,7 +31,7 @@ jobs:
             using Pkg
             Pkg.develop(PackageSpec(path=pwd()))
             Pkg.instantiate()'
-	- julia --color=yes --project=docs/ docs/make.jl
+        - julia --color=yes --project=docs/ docs/make.jl
       after_success: skip
 after_success:
   - |
