@@ -252,8 +252,6 @@ function polylog_series_1(s::Number, z::Number;
         throw(DomainError(z, "Slow convergence for  |z| > 1/2"))
     end
     total = 0.0
-    # L = ceil(-log10(accuracy)*log2(10)) # summation limit from Crandall,
-    # which is conservative, but based on real s>0
     converged = false
     a = z
     k = 0
