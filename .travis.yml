@@ -31,7 +31,7 @@ jobs:
             using Pkg
             Pkg.develop(PackageSpec(path=pwd()))
             Pkg.instantiate()
-            using Documenter: doctest
+            using Documenter
             using Polylogarithms
             DocMeta.setdocmeta!(Polylogarithms, :DocTestSetup, :(using Polylogarithms); recursive=true)
             doctest(Polylogarithms)
