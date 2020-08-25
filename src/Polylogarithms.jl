@@ -28,6 +28,7 @@ include("constants.jl")
 include("stieltjes.jl")
 include("bernoulli_n.jl")
 include("harmonic.jl")
+# include("gamma_derivatives.jl") # this just generates a table that we include into the code
 
 # Functions
 include("beta.jl")

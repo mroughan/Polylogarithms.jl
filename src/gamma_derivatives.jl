@@ -65,17 +65,17 @@ function g2(t::Int) # http://erikerlandson.github.io/blog/2016/06/15/computing-d
 end
 
 
-#### output a table
-K = 14
-k = collect(0:K)
-G1 = zeros(Float64, K+1)
-G2 = zeros(Float64, K+1)
-for i=1:K+1
-    G1[i] = g1(i-1)
-    G2[i] = g2(i-1)
-    @printf("G1[i] = %.20f, G2[i] = %.20f\n", G1[i], G2[i])
-end
+# #### output a table
+# K = 14
+# k = collect(0:K)
+# G1 = zeros(Float64, K+1)
+# G2 = zeros(Float64, K+1)
+# for i=1:K+1
+#     G1[i] = g1(i-1)
+#     G2[i] = g2(i-1)
+#     @printf("G1[i] = %.20f, G2[i] = %.20f\n", G1[i], G2[i])
+# end
 
-df = DataFrame( k=k, G1=G1, G2=G2 )
-CSV.write("../data/gamma_derivatives.csv", df)
+# df = DataFrame( k=k, G1=G1, G2=G2 )
+# CSV.write("../data/gamma_derivatives.csv", df)
 
