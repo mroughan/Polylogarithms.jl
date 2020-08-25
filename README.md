@@ -50,3 +50,9 @@ Extended details of the algorithms being used here are provided at ...
 
 
 
+# Links
+
+There is another package doing polylogarithms,
+https://github.com/Expander/polylogarithm 
+but it's using C/CPP/Fortran
+bindings, and only appears to do s=2,3,4,5,6.
