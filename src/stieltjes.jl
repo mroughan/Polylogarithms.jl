@@ -13,7 +13,20 @@
                       -0.0003521233538030395096020521650012087417291805, 	# A183206
                       -0.0000343947744180880481779146237982273906207895, 	# A184853
                       +0.0002053328149090647946837222892370653029598537, 	# A184854
-]
+                      ]
+
+# we should probably implement some code to actually calculate these at least for checking,
+# but crude sum is very very slow, and a lookup table is all we really need
+# here are some more values if needed http://fredrikj.net/math/stieltjes100k20d.txt
+
+# calculation
+# https://hal.archives-ouvertes.fr/hal-01026562/document
+# https://mathoverflow.net/questions/105535/how-to-check-numerical-precision-of-my-computation-of-stieltjes-constants
+# https://arxiv.org/pdf/1309.2877.pdf
+# 
+# 
+# Lambert-W for calculations https://github.com/jlapeyre/LambertW.jl
+
 # old values from Ainsworth and Howell
 # gamma = [0.57721566490153
 #          -0.07281584548368,
