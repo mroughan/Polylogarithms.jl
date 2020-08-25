@@ -10,6 +10,8 @@ This implements the
 and some related functions that were needed (Harmonic numbers,
 Stieltjes constants, and Bernoulli numbers and polynomials).
 
+The code is aimed at calculating Li_s(z) for all (complex) s and z. 
+
 This is still a little experimental, but there is a fairly large test
 set that all works nicely.
 

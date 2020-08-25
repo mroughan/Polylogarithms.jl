@@ -9,8 +9,8 @@ include("../src/gamma_derivatives.jl")
 @testset "Derivatives of the gamma function at 1.0" begin
 
     @testset "    throws errors" begin
-        # @test_throws DomainError stieltjes(-1)
-        # @test_throws DomainError stieltjes(11)
+        @test_throws DomainError D(2, -1, 1.0)
+        @test_throws DomainError D(-1, 2, 1.0)
         # @test_throws MethodError stieltjes(1.5)
     end
     
