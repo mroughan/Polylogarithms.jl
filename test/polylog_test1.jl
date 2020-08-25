@@ -15,7 +15,6 @@ Q = Polylogarithms.Q
         # @test_throws MethodError polylog( 1, Float32(0.0))  # should work for all numbers
         @test_throws MethodError polylog( 1, "1.0")  # should work for all numbers
         @test_throws MethodError polylog( "1.0", 1)  # should work for all numbers
-        @test_throws MethodError polylog( 1//2, 100)  # should work for all numbers
     end 
 
     # check output types
