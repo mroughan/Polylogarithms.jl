@@ -4,3 +4,4 @@ plots/
 *.jl.cov
 *.jl.mem
 docs/build/
+Manifest.toml
