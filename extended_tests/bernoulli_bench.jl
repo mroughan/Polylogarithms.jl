@@ -5,12 +5,12 @@ using Polylogarithms
 using BenchmarkTools
 using DataFrames, CSV
 using PyPlot
-include("utilities.jl")
+include(joinpath(@__DIR__, "..", "src", "utilities.jl"))
 
 ##############################################
 # Bernoulli numbers
 B = Symbol("B_n")
-data1 = CSV.read("../data/bernoulli_test_data_1.csv", DataFrame)
+data1 = CSV.read(joinpath(@__DIR__, "..", "data", "bernoulli_test_data_1.csv"), DataFrame)
 m = size(data1,1)
 B1 = zeros(Rational{Int64}, m)
 B1_ref = zeros(Rational{Int64}, m)
@@ -48,7 +48,7 @@ savefig("plots/bernoulli_bench_0.pdf")
 ##############################################
 # Bernoulli polynomials: data v x
 B = Symbol("B_n(x)")
-data2 = CSV.read("../data/bernoulli_test_data_2.csv", DataFrame; delim=",", type=String)
+data2 = CSV.read(joinpath(@__DIR__, "..", "data", "bernoulli_test_data_2.csv"), DataFrame; delim=",", type=String)
 data2[!,:n] = parse.(Float64, data2[!,:n] )
 data2[!,:x] = parse.(Float64, data2[!,:x] )
 data2[!,B] = parse.(Float64, data2[!,B] )
@@ -76,7 +76,7 @@ savefig("plots/bernoulli_bench_2.pdf")
 ##############################################u
 # Bernoulli polynomials: data v n
 B = Symbol("B_n(x)")
-data3 = CSV.read("../data/bernoulli_test_data_3.csv", DataFrame)
+data3 = CSV.read(joinpath(@__DIR__, "..", "data", "bernoulli_test_data_3.csv"), DataFrame)
 m = size(data3,1)
 B3 = zeros(Float64, m)
 B3_ref = zeros(Float64, m)

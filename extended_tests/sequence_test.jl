@@ -4,7 +4,7 @@ using Polylogarithms
 using DataFrames, CSV
 using PyPlot
 using Printf
-include("utilities.jl")
+include(joinpath(@__DIR__, "..", "src", "utilities.jl"))
 using SpecialFunctions
 
 # chose a "hard value"
