@@ -36,7 +36,7 @@ function parse(::Type{Complex{T}}, s::AbstractString) where {T<:Real}
 end
 
 # input data from Mathematica and reparse into complex numbers
-data1 = CSV.read("../data/Q_test_data_1.csv"; delim=",", type=String)
+data1 = CSV.read(joinpath(@__DIR__, "..", "data", "Q_test_data_1.csv"); delim=",", type=String)
 #    has trouble reading in numbers like "2." so read all into strings, and parse
 data1[!,:n] = Int.(parse.(Float64, data1[!,:n] ))
 data1[!,:s] = parse.(Complex{Float64}, data1[!,:s] )

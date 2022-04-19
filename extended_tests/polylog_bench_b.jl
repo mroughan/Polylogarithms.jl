@@ -6,7 +6,7 @@ using BenchmarkTools
 using DataFrames, CSV
 using PyPlot
 using Printf
-include("utilities.jl")
+include(joinpath(@__DIR__, "..", "src", "utilities.jl"))
 
 series_1 = Polylogarithms.polylog_series_1
 series_2 = Polylogarithms.polylog_series_2
@@ -34,7 +34,7 @@ function parse(::Type{Complex{T}}, s::AbstractString) where {T<:Real}
 end
 
 # input data from Mathematica and reparse into complex numbers
-data1 = CSV.read("../data/polylog_test_data_b_1.csv"; delim=",", type=String)
+data1 = CSV.read(joinpath(@__DIR__, "..", "data", "polylog_test_data_b_1.csv"); delim=",", type=String)
 #    has trouble reading in numbers like "2." so read all into strings, and parse
 data1[!,:n] = Int.(parse.(Float64, data1[!,:n] ))
 data1[!,:s] = parse.(Complex{Float64}, data1[!,:s] )

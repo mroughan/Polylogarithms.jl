@@ -3,7 +3,7 @@ using BenchmarkTools
 using DataFrames, CSV
 using PyPlot
 using Printf
-include("utilities.jl")
+include(joinpath(@__DIR__, "..", "src", "utilities.jl"))
 
 series_1 = Polylogarithms.polylog_series_1
 series_2 = Polylogarithms.polylog_series_2

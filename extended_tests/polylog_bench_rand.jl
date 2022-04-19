@@ -15,7 +15,7 @@ L = Symbol("Li_s(z)")
 
 # input data from Mathematica and reparse into complex numbers
 C = 2
-filename = @sprintf("../data/polylog_test_data_rand_%d.csv", C)
+filename = joinpath(@__DIR__, "..", "data", "polylog_test_data_rand_$(C).csv")
 data1 = CSV.read(filename; delim=",", type=String)
 
 # has trouble reading in numbers like "2." so read all into strings, and parse
@@ -70,7 +70,7 @@ error1 = abs.( S1 - Li  )
 rel_error1 = error1 ./ abs.( Li )
 println("   max abs. rel. error1 = $(maximum( abs.(rel_error1) ))")
 
-fig = figure(@sprintf("../data/polylog_bench_rand_1.csv"), figsize=(6,4))
+fig = figure(joinpath(@__DIR__, "..", "data", "polylog_bench_rand_1.csv"), figsize=(6,4))
 clf()
 h = hist(log10.(rel_error1), collect(-16 : 0.5 : -8); align="mid" )
 ylabel("number")

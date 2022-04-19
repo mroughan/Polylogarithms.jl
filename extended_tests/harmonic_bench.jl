@@ -10,7 +10,7 @@ H = Symbol("real(H_n)")
 
 ##############################################
 # integer arguments
-data1 = CSV.read("../data/harmonic_test_data_1.csv", DataFrame)
+data1 = CSV.read(joinpath(@__DIR__, "..", "data", "harmonic_test_data_1.csv"), DataFrame)
 m = size(data1,1)
 H1 = zeros(Float64, m)
 error1 = zeros(Float64, m)
@@ -31,7 +31,7 @@ savefig("plots/harmonic_bench_1.pdf")
 
 ##############################################
 # real arguments
-data2 = CSV.read("../data/harmonic_test_data_2.csv", DataFrame)
+data2 = CSV.read(joinpath(@__DIR__, "..", "data", "harmonic_test_data_2.csv"), DataFrame)
 m = size(data2,1)
 H2 = zeros(Float64, m)
 error2 = zeros(Float64, m)
@@ -58,7 +58,7 @@ zr = Symbol("Re(z)")
 zi = Symbol("Im(z)")
 Hr = Symbol("Re(H(z))")
 Hi = Symbol("Im(H(z))")
-data3 = CSV.read("../data/harmonic_test_data_3.csv", DataFrame)
+data3 = CSV.read(joinpath(@__DIR__, "..", "data", "harmonic_test_data_3.csv"), DataFrame)
 m = size(data3,1)
 H3 = zeros(Complex{Float64}, m)
 error3 = zeros(Complex{Float64}, m)
@@ -86,7 +86,7 @@ savefig("plots/harmonic_bench_3.pdf")
 ##############################################
 # integer arguments for generalize H
 H = Symbol("real(H_{n,r})")
-data4 = CSV.read("../data/harmonic_test_data_4.csv", DataFrame)
+data4 = CSV.read(joinpath(@__DIR__, "..", "data", "harmonic_test_data_4.csv"), DataFrame)
 m = size(data4,1)
 H4 = zeros(Float64, m)
 error4 = zeros(Float64, m)
@@ -108,7 +108,7 @@ savefig("plots/harmonic_bench_4.pdf")
 ##############################################
 # integer n, real r for generalized H
 H = Symbol("real(H_{n,r})")
-data5 = CSV.read("../data/harmonic_test_data_5.csv", DataFrame)
+data5 = CSV.read(joinpath(@__DIR__, "..", "data", "harmonic_test_data_5.csv"), DataFrame)
 m = size(data5,1)
 H5 = zeros(Float64, m)
 error5 = zeros(Float64, m)

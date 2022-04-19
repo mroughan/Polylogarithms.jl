@@ -2,9 +2,9 @@ using DataFrames, CSV
 using PyPlot
 using Printf
 using SpecialFunctions
-include("utilities.jl")
+include(joinpath(@__DIR__, "..", "src", "utilities.jl"))
 
-filename = @sprintf("../data/zeta_test_data.csv")
+filename = joinpath(@__DIR__, "..", "data", "zeta_test_data.csv")
 data1 = CSV.read(filename; delim=",", type=String)
 
 data1[!,:s] = parse.(Complex{Float64}, data1[!,:s] )

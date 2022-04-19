@@ -4,7 +4,7 @@ using BenchmarkTools
 using DataFrames, CSV
 using PyPlot
 using Printf
-include("utilities.jl")
+include(joinpath(@__DIR__, "..", "src", "utilities.jl"))
 
 series_1 = Polylogarithms.polylog_series_1
 series_2 = Polylogarithms.polylog_series_2
@@ -17,7 +17,7 @@ L = Symbol("Li_s(z)")
 for C=1:6
     # C = 1
     println("C = $C")
-    filename = @sprintf("../data/polylog_test_data_c_%d.csv", C)
+    filename = joinpath(@__DIR__, "..", "data", "polylog_test_data_c_$(C).csv")
     data1 = CSV.read(filename; delim=",", type=String)
     #    has trouble reading in numbers like "2." so read all into strings, and parse
     data1[!,:s] = parse.(Complex{Float64}, data1[!,:s] )
@@ -80,7 +80,7 @@ for C=1:6
     println("   max abs. error1 = $(maximum( abs.(error1) ))")
     println("   max abs. error2 = $(maximum( abs.(error2) ))")
     
-    fig = figure(@sprintf("../data/polylog_bench_a_%02d.csv", C), figsize=(10,8))
+    fig = figure(joinpath(@__DIR__, "..", "data", "polylog_bench_a_$(C).csv"), figsize=(10,8))
     clf()
     title( @sprintf("s = %f + %f i", real(su), imag(su)) )
     d = 0.01

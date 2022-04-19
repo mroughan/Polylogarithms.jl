@@ -7,7 +7,7 @@ using BenchmarkTools
 using DataFrames, CSV
 using PyPlot
 using Printf
-include("utilities.jl")
+include(joinpath(@__DIR__, "..", "src", "utilities.jl"))
 
 series_1 = Polylogarithms.polylog_series_1
 series_2 = Polylogarithms.polylog_series_2
@@ -19,7 +19,7 @@ L = Symbol("Li_s(z)")
 # input data from Mathematica and reparse into complex numbers
 #for C=1:3
     C = 1
-    filename = @sprintf("../data/polylog_test_data_d_%d.csv", C)
+    filename = joinpath(@__DIR__, "..", "data", "polylog_test_data_d_$(C).csv")
     data1 = CSV.read(filename; delim=",", type=String)
     #    has trouble reading in numbers like "2." so read all into strings, and parse
     data1[!,:s] = parse.(Complex{Float64}, data1[!,:s] )
@@ -78,7 +78,7 @@ L = Symbol("Li_s(z)")
     println("   max abs. error1 = $(maximum( abs.(error1) ))")
     println("   max abs. error2 = $(maximum( abs.(error2) ))")
     
-    fig = figure(@sprintf("../data/polylog_bench_a_%02d.csv", C), figsize=(10,8))
+    fig = figure(joinpath(@__DIR__, "..", "data", "polylog_bench_a_$(C).csv"), figsize=(10,8))
     clf()
     title( @sprintf("s = %f + %f i", real(su), imag(su)) )
     d = 0.01
