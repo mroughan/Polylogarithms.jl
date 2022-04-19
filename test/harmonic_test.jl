@@ -37,7 +37,7 @@ include("test_defs.jl")
     end
 
     @testset "    dataset 1 (integer arguments)" begin
-        data1 = CSV.read("../data/harmonic_test_data_1.csv", DataFrame)
+        data1 = CSV.read(joinpath(@__DIR__, "..", "data", "harmonic_test_data_1.csv"), DataFrame)
         m = size(data1,1)
         H = Symbol("real(H_n)")
         for i=1:m
@@ -46,7 +46,7 @@ include("test_defs.jl")
     end
  
     @testset "    dataset 2 (real arguments)" begin
-        data2 = CSV.read("../data/harmonic_test_data_2.csv", DataFrame)
+        data2 = CSV.read(joinpath(@__DIR__, "..", "data", "harmonic_test_data_2.csv"), DataFrame)
         m = size(data2,1)
         H = Symbol("real(H_n)")
         for i=1:m
@@ -55,7 +55,7 @@ include("test_defs.jl")
     end
 
     @testset "    dataset 3 (complex arguments)" begin
-        data3 = CSV.read("../data/harmonic_test_data_3.csv", DataFrame)
+        data3 = CSV.read(joinpath(@__DIR__, "..", "data", "harmonic_test_data_3.csv"), DataFrame)
         m = size(data3,1)
         zr = Symbol("Re(z)")
         zi = Symbol("Im(z)")
@@ -96,7 +96,7 @@ end
 
     @testset "    dataset 4 (integer arguments)" begin
         H = Symbol("real(H_{n,r})")
-        data4 = CSV.read("../data/harmonic_test_data_4.csv", DataFrame)
+        data4 = CSV.read(joinpath(@__DIR__, "..", "data", "harmonic_test_data_4.csv"), DataFrame)
         m = size(data4,1)
         for i=1:m
             @test harmonic( data4[i,:n], data4[i,:r] ) ≅ data4[i,H]
@@ -105,7 +105,7 @@ end
 
     @testset "    dataset 5 (integer n, real r)" begin
         H = Symbol("real(H_{n,r})")
-        data5 = CSV.read("../data/harmonic_test_data_5.csv", DataFrame)
+        data5 = CSV.read(joinpath(@__DIR__, "..", "data", "harmonic_test_data_5.csv"), DataFrame)
         m = size(data5,1)
         for i=1:m
             @test harmonic( data5[i,:n], data5[i,:r] )  ≅ data5[i,H]

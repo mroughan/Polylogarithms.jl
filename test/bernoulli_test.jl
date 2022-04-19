@@ -25,7 +25,7 @@ include("test_defs.jl")
 
     @testset "    dataset 1" begin
         B = Symbol("B_n")
-        data1 = CSV.read("../data/bernoulli_test_data_1.csv", DataFrame)
+        data1 = CSV.read(joinpath(@__DIR__, "..", "data", "bernoulli_test_data_1.csv"), DataFrame)
         m = size(data1,1)
         for i=1:m
             @test bernoulli( data1[i,:n] ) ≅ parse(Rational{Int64},data1[i,B])
@@ -94,7 +94,7 @@ end
  
     @testset " dataset 2" begin 
         B = Symbol("B_n(x)")
-        data2 = CSV.read("../data/bernoulli_test_data_2.csv", DataFrame; delim=",", type=String)
+        data2 = CSV.read(joinpath(@__DIR__, "..", "data", "bernoulli_test_data_2.csv"), DataFrame; delim=",", type=String)
         data2[!,:n] = parse.(Float64, data2[!,:n] )
         data2[!,:x] = parse.(Float64, data2[!,:x] )
         data2[!,B] = parse.(Float64, data2[!,B] )
@@ -106,7 +106,7 @@ end
     
     @testset " dataset 3" begin
         B = Symbol("B_n(x)")
-        data3 = CSV.read("../data/bernoulli_test_data_3.csv", DataFrame; delim=",")
+        data3 = CSV.read(joinpath(@__DIR__, "..", "data", "bernoulli_test_data_3.csv"), DataFrame; delim=",")
         m = size(data3,1)
         for i=1:m
             @test bernoulli( Int(data3[i,:n]),  data3[i,:x]) ≈ data3[i,B]
