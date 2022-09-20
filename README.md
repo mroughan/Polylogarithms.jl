@@ -28,10 +28,10 @@ occasional errors as large as 1.0e-11 have been seen.
  + `harmonic(n)` Provides the Harmonic numbers
  + `harmonic(n,r)` Provides the generalised Harmonic numbers
  
- + `stieltjes(n)` Provides the first 10
- [Stieltjes](https://en.wikipedia.org/wiki/Stieltjes_constants)
- (generalized Euler-Mascheroni) constants (see Abramowitz and Stegunm,
- 23.2.5). 
+ + `stieltjes(n)` Provides the first 10 [Stieltjes
+ constants](https://en.wikipedia.org/wiki/Stieltjes_constants) (see
+ Abramowitz and Stegun, 23.2.5), also known as the generalized
+ Euler-Mascheroni constants.
  
  + `dirichlet_beta(z)` Provides the Dirichlet beta function
  
