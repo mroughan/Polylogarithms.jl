@@ -42,7 +42,7 @@ julia> bernoulli(6)
 ```
 """
 function bernoulli(n::Integer)
-    if n<0
+    if n<0 
         throw(DomainError(n))
     elseif n > 1 && isodd(n)
         return 0 // 1

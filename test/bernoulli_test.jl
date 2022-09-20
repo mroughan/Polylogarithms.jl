@@ -53,7 +53,7 @@ end
     @testset "    types" begin
         @test typeof( euler(2) ) == BigInt
     end
-    
+      
     @testset "    congruences" begin
         for p in [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61]
             if mod(p,4) == 1
