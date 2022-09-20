@@ -1,7 +1,7 @@
 name = "Polylogarithms"
 uuid = "43cc4a2f-1a2b-4fbb-87e3-95c794af13de"
 authors = ["Matthew Roughan <matthew.roughan@adelaide.edu.au> and contributors"]
-version = "0.1.0"
+version = "0.1.1"
 
 [deps]
 SpecialFunctions = "276daf66-3868-5448-9aa4-cd146d93841b"
