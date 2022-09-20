@@ -1,9 +1,4 @@
 # test functionality and identities
-using Polylogarithms
-using SpecialFunctions
-using Test
-using DataFrames, CSV
-import Base.MathConstants: π, pi, ℯ, e, γ, eulergamma, catalan, φ, golden
 include("test_defs.jl")
 Q = Polylogarithms.Q
 

@@ -1,8 +1,3 @@
-using Polylogarithms
-using SpecialFunctions
-using Test
-using DataFrames, CSV
-import Base.MathConstants: π, pi, ℯ, e, γ, eulergamma, catalan, φ, golden
 include("test_defs.jl")
 
 @testset "Bernoulli numbers" begin
@@ -94,7 +89,7 @@ end
  
     @testset " dataset 2" begin 
         B = Symbol("B_n(x)")
-        data2 = CSV.read("../data/bernoulli_test_data_2.csv", DataFrame; delim=",", type=String)
+        data2 = CSV.read("../data/bernoulli_test_data_2.csv", DataFrame; delim=",", types=String)
         data2[!,:n] = parse.(Float64, data2[!,:n] )
         data2[!,:x] = parse.(Float64, data2[!,:x] )
         data2[!,B] = parse.(Float64, data2[!,B] )

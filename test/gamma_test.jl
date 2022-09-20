@@ -1,10 +1,6 @@
-using Polylogarithms
-using SpecialFunctions
-using Test
-using DataFrames, CSV
-import Base.MathConstants: π, pi, ℯ, e, γ, eulergamma, catalan, φ, golden
 include("test_defs.jl")
 include("../src/gamma_derivatives.jl")
+# plan to do more here
 
 @testset "Derivatives of the gamma function at 1.0" begin
 
@@ -27,5 +23,4 @@ include("../src/gamma_derivatives.jl")
             @test g1(n) ≈ g2(n)
         end
     end
-
 end

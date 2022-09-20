@@ -1,5 +1,11 @@
+# common bits that the tests use
+using Polylogarithms
+using SpecialFunctions
+using Test
+using DataFrames, CSV
+import Base.MathConstants: π, pi, ℯ, e, γ, eulergamma, catalan, φ, golden
 
-# Tests defines
+# functions for comparisons of results
 
 # ≈   \approx
 # x ≉ y is equivalent to !isapprox(x,y)
