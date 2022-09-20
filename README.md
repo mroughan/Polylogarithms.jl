@@ -44,16 +44,13 @@ julia> polylog(2.0, 1.0)
 1.6449340668482273
 ```
 
+# Details and Accuracy
 
-# Docs
+Extended details of the algorithms being used here are provided at
+https://arxiv.org/abs/2010.09860.
 
-See ...
-
-# Details
-
-Extended details of the algorithms being used here are provided at ...
-
-
+Accuracy has been tested over a wide range of scenarios. It starts to
+falter for large $z$ and $\Re(s) > 8$. 
 
 # Note
 
