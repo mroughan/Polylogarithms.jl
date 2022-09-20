@@ -8,7 +8,7 @@
 This implements the
 [Polylogarithm](https://en.wikipedia.org/wiki/Polylogarithm#Relationship_to_other_functions)
 and some related functions that were needed (Harmonic numbers,
-Stieltjes constants, and Bernoulli numbers and polynomials).
+Stieltjes constants, and Bernoulli numbers and polynomials, and Euler numbers).
 
 The code is aimed at calculating Li_s(z) for all (complex) s and z. 
 
@@ -22,9 +22,11 @@ occasional errors as large as 1.0e-11 have been seen.
 
  + `polylog(s, z)` the polylogarithm function
  
- + `bernoulli(n)`  Provides the first 35 Bernoulli numbers
+ + `bernoulli(n)`  Provides the first 59 Bernoulli numbers as exact rationals
  + `bernoulli(n,x)`  Provides the Bernoulli polynomials
  
+ + `euler(n)`  Provides the first 61 Euler numbers as BigInt 
+
  + `harmonic(n)` Provides the Harmonic numbers
  + `harmonic(n,r)` Provides the generalised Harmonic numbers
  

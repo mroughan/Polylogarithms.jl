@@ -10,7 +10,7 @@ import SpecialFunctions
 # not using MPFR for the moment
 # using Base.MPFR: ROUNDING_MODE, big_ln2
 
-export polylog, bernoulli, harmonic, stieltjes, dirichlet_beta
+export polylog, bernoulli, euler, harmonic, stieltjes, dirichlet_beta
 export Diagnostics
 export parse
 

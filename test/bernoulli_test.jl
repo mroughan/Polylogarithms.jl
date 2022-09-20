@@ -3,18 +3,26 @@ include("test_defs.jl")
 @testset "Bernoulli numbers" begin
     @testset "    throws errors" begin
         @test_throws DomainError bernoulli(-1)
-        @test_throws DomainError bernoulli(36)
+        @test_throws DomainError bernoulli( Int128(60) )
+        @test_throws DomainError bernoulli( Int64(36)  )
+        @test_throws DomainError bernoulli( Int32(24)  )
+        @test_throws DomainError bernoulli( BigInt(1)  )
+        @test_throws DomainError bernoulli( Int8(1)  )
         @test_throws MethodError bernoulli(1.0)
     end
 
     @testset "    types" begin
-        @test typeof(bernoulli(2)) == Rational{Int64}
+        @test typeof( bernoulli( Int32(2)  )) == Rational{Int32}
+        @test typeof( bernoulli( Int64(2)  )) == Rational{Int64}
+        @test typeof( bernoulli( Int128(2)  )) == Rational{Int128}
     end
     
-    @testset "    explicit cases" begin
+    @testset "    approximation for explicit cases" begin
         for i=2:34
-            # zeta isn't quite as accurate as we would like
-            @test Float64(bernoulli(i)) ≈ -i*zeta( 1 - i )
+            @test Float64( bernoulli(i) ) ≈ -i*zeta( 1 - i )
+        end
+        for i=35:59
+            @test Float64( bernoulli( Int128(i) ) ) ≈ -i*zeta( 1 - i )
         end
     end
 
@@ -26,8 +34,39 @@ include("test_defs.jl")
             @test bernoulli( data1[i,:n] ) ≅ parse(Rational{Int64},data1[i,B])
         end
     end
+
+    @testset "    identities" begin
+        # sum formula
+        for n=2:35
+            k = collect( 0:Int64(n) )
+            @test sum( binomial.(n+1, k) .*  bernoulli.(k) ) == 0
+        end
+    end
 end
 
+@testset "Euler numbers" begin
+    @testset "    throws errors" begin
+        @test_throws DomainError euler(-1)
+        @test_throws DomainError euler( 62 )
+    end
+
+    @testset "    types" begin
+        @test typeof( euler(2) ) == BigInt
+    end
+    
+    @testset "    congruences" begin
+        for p in [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61]
+            if mod(p,4) == 1
+                @test mod( (-1)^( (p-1)/2 ) * euler(p-1), p) == 0
+            elseif mod(p,3) == 3
+                @test mod( (-1)^( (p-1)/2 ) * euler(p-1), p) == p-2
+            else
+                # ignore these cases
+            end
+        end
+    end
+    
+end
 
 @testset "Bernoulli polynomials" begin
     @testset "    throws errors" begin
