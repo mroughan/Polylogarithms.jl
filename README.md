@@ -28,7 +28,10 @@ occasional errors as large as 1.0e-11 have been seen.
  + `harmonic(n)` Provides the Harmonic numbers
  + `harmonic(n,r)` Provides the generalised Harmonic numbers
  
- + `stieltjes(n)` Provides the first 10 [Stieltjes](https://en.wikipedia.org/wiki/Stieltjes_constants) (generalized Euler-Mascheroni) constants (see Abramowitz and Stegunm, 23.2.5) or 
+ + `stieltjes(n)` Provides the first 10
+ [Stieltjes](https://en.wikipedia.org/wiki/Stieltjes_constants)
+ (generalized Euler-Mascheroni) constants (see Abramowitz and Stegunm,
+ 23.2.5). 
  
  + `dirichlet_beta(z)` Provides the Dirichlet beta function
  
@@ -52,9 +55,9 @@ Extended details of the algorithms being used here are provided at ...
 
 
 
-# Links
+# Note
 
-There is another package doing polylogarithms,
-https://github.com/Expander/polylogarithm 
-but it's using C/CPP/Fortran
-bindings, and only appears to do s=2,3,4,5,6.
+According to naming conventions, this package should have been called
+Polylogarithm, but there is already an older package doing
+polylogarithms, https://github.com/Expander/polylogarithm but it's
+using C/CPP/Fortran bindings, and only appears to do s=2,3,4,5,6.

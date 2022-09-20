@@ -72,8 +72,8 @@ function bernoulli(n::Integer, x::Real)
         end
         return total
     else
-        # this is faster but less accurate, and runs into some weird problems, e.g.,
-        # SpecialFunctions.zeta(-6, -1.0) = NaN (probably should be 2)
+        # this is faster but less accurate, and runs into some problems, e.g.,
+        #      SpecialFunctions.zeta(-6, -1.0) = NaN
         return -n*SpecialFunctions.zeta(1-n, x)
     end
 end

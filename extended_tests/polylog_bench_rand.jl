@@ -33,16 +33,17 @@ markerSize = 1
 
 figure("z", figsize=fs)
 title("distribution of z")
-plot(real.(z), imag.(z), "."; markersize=markerSize)
+plot(real.(z), imag.(z), "."; markersize=markerSize, color=[0.8, 0.8, 0.8])
 ylabel("Im(z)")
 xlabel("Re(z)")
 axis("equal")
     
 figure("s", figsize=fs)
-title("distribution of s")
-plot(real.(s), imag.(s), "."; markersize=markerSize)
+# title("distribution of s")
+plot(real.(s), imag.(s), "."; markersize=markerSize, color=[0.8, 0.8, 0.8])
 ylabel("Im(s)")
 xlabel("Re(s)")
+xticks(-8:2:8)
 axis("equal")
 
 S1 = zeros(Complex{Float64}, m)
@@ -99,10 +100,10 @@ count_bad = length(k)
 bad_guys = DataFrame(s=s[k], z=z[k], Li=Li[k], err=rel_error1[k], series=series1[k],  n_terms=n1[k])
 
 figure("z")
-plot(real.(z[k]), imag.(z[k]), "r."; markersize=markerSize+1)
+plot(real.(z[k]), imag.(z[k]), "r."; markersize=markerSize, color=[0.8, 0.0, 0.0])
 
 figure("s")
-plot(real.(s[k]), imag.(s[k]), "r."; markersize=markerSize+1)
+plot(real.(s[k]), imag.(s[k]), "r."; markersize=markerSize, color=[0.8, 0.0, 0.0])
 
 
 s_min = floor( minimum(min.(real.(s), imag.(s)) ))

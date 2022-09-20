@@ -4,3 +4,6 @@ plots/
 *.jl.cov
 *.jl.mem
 docs/build/
+build/
+test/Old
+todo.txt

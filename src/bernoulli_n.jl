@@ -43,6 +43,9 @@ function bernoulli(n::Integer)
     # Numerator of Bernoulli number B_n (storing 62 of these because they are easy)
     #   http://oeis.org/A027641
     N = [-1, 1, 0, -1, 0, 1, 0, -1, 0, 5, 0, -691, 0, 7, 0, -3617, 0, 43867, 0, -174611, 0, 854513, 0, -236364091, 0, 8553103, 0, -23749461029, 0, 8615841276005, 0, -7709321041217, 0, 2577687858367, 1]
+
+    # we could save some storage by removing all the 0 entries above, which aren't used, but
+    # it all makes more sense to me this way 
     
     if n==0
         return 1 
