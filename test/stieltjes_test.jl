@@ -1,6 +1,6 @@
 include("test_defs.jl")
 
-@testset "Harmonic numbers" begin
+@testset "Stieltjes numbers" begin
 
     @testset "    throws errors" begin
         @test_throws DomainError stieltjes(-1)
