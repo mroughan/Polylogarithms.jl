@@ -60,3 +60,8 @@ According to naming conventions, this package should have been called
 Polylogarithm, but there is already an older package doing
 polylogarithms, https://github.com/Expander/polylogarithm but it's
 using C/CPP/Fortran bindings, and only appears to do s=2,3,4,5,6.
+
+There is a new package
+[PolyLog](https://github.com/Expander/PolyLog.jl), which does some
+newer stuff for dilogarithms, so that might be for you if you care
+about that case. 
