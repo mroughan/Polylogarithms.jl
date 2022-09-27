@@ -95,6 +95,8 @@ function polylog(s::Number, z::Number, ::Diagnostics;
         return polylog_series_1(s, z; accuracy=accuracy, min_iterations=min_iterations, max_iterations=max_iterations)
     elseif t <= T && ( abs(round(real(s))-s) > tau_threshold || real(s)<= 0 )
         return polylog_series_2(s, z; accuracy=accuracy, min_iterations=min_iterations, max_iterations=max_iterations)
+    elseif t <= T &&  abs(s) <= tau_threshold # deal with small, positive values of s
+        return polylog_series_2(s, z; accuracy=accuracy, min_iterations=min_iterations, max_iterations=max_iterations)
     elseif t <= T
         return polylog_series_3(s, z; accuracy=accuracy, min_iterations=min_iterations, max_iterations=max_iterations)
 #    elseif t <= 2.0
@@ -416,7 +418,7 @@ function f_crandall(k::Integer, q::Integer) # Crandall,2012, p.36
     end
 end
 
-# For the special case that s is near a postive integer n>0
+# For the special case that s is near a positive integer n>0
 # Calculate in a power series around z=1, and s=n    
 function polylog_series_3(s::Number, z::Number;
                           accuracy::Float64=default_accuracy,

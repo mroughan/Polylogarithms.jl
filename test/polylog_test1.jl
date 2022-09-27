@@ -2,7 +2,7 @@
 include("test_defs.jl")
 Q = Polylogarithms.Q
 
-@testset "Polylogarithm polylog identies and special values" begin
+@testset "Polylogarithm polylog identities and special values" begin
     
     # check throws errors
     @testset "    throws errors" begin
@@ -168,6 +168,11 @@ Q = Polylogarithms.Q
         end
     end
 
+    # cases that caused errors in the past
+    @testset "     cases to check old errors don't recur" begin
+        @test polylog( 0.000964487315968654, 0.25 ) ≈  0.3332677049928309 # small, positive s shouldn't use series 3
+    end
+    
     @testset "    additional Identities" begin
         z = 0.5
         for n=1:5
