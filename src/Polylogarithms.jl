@@ -19,7 +19,7 @@ export parse
 ComplexOrReal{T} = Union{T,Complex{T}}
 
 # Some extra parsing routines for reading Mathematics output, but also, complex numbers
-include("utilities.jl")
+#include("utilities.jl")
 
 # Constants
 include("constants.jl")
