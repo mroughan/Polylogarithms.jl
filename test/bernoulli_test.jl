@@ -26,12 +26,24 @@ include("test_defs.jl")
         end
     end
 
-    @testset "    dataset 1" begin
-        B = Symbol("B_n")
+    @testset "    dataset 1 (first 42 exact rationals from Mathematica)" begin
+        B_d = Symbol("B_n(denom)")
+        B_n = Symbol("B_n(num)")
         data1 = CSV.read("../data/bernoulli_test_data_1.csv", DataFrame)
+        B = data1[:,B_n] .//data1[:,B_d]
         m = size(data1,1)
         for i=1:m
-            @test bernoulli( data1[i,:n] ) ≅ parse(Rational{Int64},data1[i,B])
+            # old Mathematica output @test bernoulli( data1[i,:n] ) ≅ parse(Rational{Int64},data1[i,B])
+
+            # println("   i=$i")
+            if data1[i,:n] < 36
+                # B = parse(Int64,data1[i,B_n]) // parse(Int64,data1[i,B_d])
+                b = Rational{Int64}(B[i])
+                @test bernoulli( data1[i,:n] ) == b
+            else
+                b = B[i]
+                @test bernoulli( Int128(data1[i,:n]) ) == b
+            end
         end
     end
 

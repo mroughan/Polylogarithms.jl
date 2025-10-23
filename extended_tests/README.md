@@ -7,7 +7,7 @@ Also includes various plots.
 
 Also includes tests of timing.
 
-High-precision data (in ../data/) was created using Mathematica's
+High-precision data (in `../data/`) was created using Mathematica's
 arbitrary precision arithmetic.
 
 Diagnostic plots go into plots/

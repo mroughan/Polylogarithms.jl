@@ -6,17 +6,22 @@ Module containing functions to calculate the polylogarithm and associated functi
 """
 module Polylogarithms
 import SpecialFunctions
-
 # not using MPFR for the moment
 # using Base.MPFR: ROUNDING_MODE, big_ln2
 
 export polylog, bernoulli, euler, harmonic, stieltjes, dirichlet_beta
 export Diagnostics
 export parse
+export Memoization, CacheZeta, clearcache
 
 # @compat ComplexOrReal{T} = Union{T,Complex{T}}
 # s::ComplexOrReal{Float64}
 ComplexOrReal{T} = Union{T,Complex{T}}
+
+const default_accuracy = 1.0e-12
+const default_max_iterations = 1000
+const near_int_threshold = 1.0e-6
+const series_transition_threshold = 0.25
 
 # Some extra parsing routines for reading Mathematics output, but also, complex numbers
 include("utilities.jl")

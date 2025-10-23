@@ -10,10 +10,6 @@ include("../src/gamma_derivatives.jl")
         # @test_throws MethodError stieltjes(1.5)
     end
     
-    @testset "    types" begin
-        # @test typeof(stieltjes(1)) == Float64
-    end
-
     @testset "    values" begin
         @test g1(0) ≈ 1.0
         @test g2(0) ≈ 1.0

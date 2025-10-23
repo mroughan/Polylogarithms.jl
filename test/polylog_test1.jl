@@ -47,7 +47,8 @@ Q = Polylogarithms.Q
         d2 = SpecialFunctions.digamma(1) - ℒ
         @test Polylogarithms.c_closed(0, 0, ℒ) ≈ harmonic(0) - ℒ
         @test Polylogarithms.c_closed(0, 1, ℒ) ≈ -stieltjes(1)   - d2^2/2      - π^2/6 + SpecialFunctions.polygamma(1,1)/2
-        @test Polylogarithms.c_closed(0, 2, ℒ) ≈  stieltjes(2)/2 + d2^3/6 + d2*( π^2/6 - SpecialFunctions.polygamma(1,1)/2 ) +
+        @test Polylogarithms.c_closed(0, 2, ℒ) ≈  stieltjes(2)/2 + d2^3/6 + d2*( π^2/6 -
+                                                       SpecialFunctions.polygamma(1,1)/2 ) +
                                                        SpecialFunctions.polygamma(2,1)/6
         for n=0:3
             @test Polylogarithms.c_closed(n, 0, ℒ) ≈ Polylogarithms.c_crandall(n, 0, ℒ)
@@ -216,4 +217,51 @@ Q = Polylogarithms.Q
             end
         end
     end
+    
+    # diagnostics
+    @testset "    diagnostics" begin
+        S = [ -1.0 ,  0.5+0.5im,  3.0,   -1.5,         -1.5,        -1.5,      1   ]
+        Z = [ -0.25, 1.0 + im,   -1.0,  -50.0, -400 + 250im, 600 + 600im,  -500.0  ]
+
+        # series 1 cases, polylog(-1, z) ≈ z ./ (1-z).^2
+        i = 1
+        s = S[i]
+        z = Z[i]
+        @test all( polylog(s, z, Diagnostics()) .≈ ( z ./ (1-z).^2, 24, 1, 0) )
+
+        # series 2 cases
+        i = 2
+        s = S[i]
+        z = Z[i]
+        @test all( polylog(s, z, Diagnostics()) .≈ ( polylog(s, z), 16, 2, 0) )
+        
+        # series 3 cases,    polylog(3,-1.0)             ≈ -3*zeta(3)/4
+        i = 3
+        s = S[i]
+        z = Z[i]
+        @test all( polylog(s, z, Diagnostics()) .≈ ( -3*zeta(3)/4, 36, 3, 0) )
+        
+        # m-th root multiplication formula
+        i = 4
+        s = S[i]
+        z = Z[i]
+        @test all( polylog(s, z, Diagnostics()) .≈ ( polylog(s, z), 36, 22, 0) )
+      
+        i = 5
+        s = S[i]
+        z = Z[i]
+        @test all( polylog(s, z, Diagnostics()) .≈ ( polylog(s, z), 58, 32, 0) )
+
+        i = 6
+        s = S[i]
+        z = Z[i]
+        @test all( polylog(s, z, Diagnostics()) .≈ ( polylog(s, z),  52, 42, 0) )
+
+        # duplication recursion
+        i = 7
+        s = S[i]
+        z = Z[i]
+        @test all( polylog(s, z, Diagnostics()) .≈ ( polylog(s, z), 120, ((3, 3), (3, 3)), 1) )
+    end
+                   
 end

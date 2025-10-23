@@ -1,0 +1,35 @@
+Major changes from v0.01 to v0.02
+
+1. Added memoization to avoid repeated calling of zeta fn for same
+   arguments (could add this for some other functions, inc. the polylog itself)
+
+2. Added m-th root formula to avoid deep recursion and improve
+   accuracy in the region for large real s and very large z
+     - several implementations here
+            - direct
+	    - reordered sum
+   also checked asymptotic formula again, with predictable poor
+   accuracy.
+
+3. Changed output of internal functions to provide better information
+   on recursion (so now they return the series being used as a tree,
+   and the max_recursion as a direct variable)
+
+4. Change prereqs to make it more flexible, particularly WRT to
+   SpecialFunctions
+
+5. The utilities included code for parsing numbers to allow reading in
+   Mathematica output. However: 
+
+   +  Rational parsing was added for Julia's rational somewhere around
+      1.9 or 1.10, so drop this, and make 1.10 the requirement.
+   + Complex number outputs from Mathematica seem to have changed to a
+      more standard form, so the code was updated.
+
+  Note that the parsing code isn't a core part of the package, and is
+  used only for testing, so maybe it should be removed into the test
+  directories? 
+
+6. Many of the tests have been changed to reflect the above, and new
+   test data has been added.
+

@@ -1,12 +1,39 @@
-
-const default_accuracy = 1.0e-12
-const default_max_iterations = 1000
-const near_int_threshold = 1.0e-6
-const series_transition_threshold = 0.25
-
 struct Diagnostics # this immutable type has no fields, so constructing it is essentially free
 end
 
+####
+#### the following bits and pieces are used for memoization to avoid repeated (expensive) function evaluations
+####
+struct Memoization # this immutable type has no fields, so constructing it is essentially free
+end
+import SpecialFunctions.zeta
+const CacheZeta  = Dict{Number, ComplexOrReal{Float64} }()
+const CacheList = [ CacheZeta ]
+# could do the same for gamma (and loggamma, digamma, polygamma, ...) and  
+
+# we need to empty the cache before doing any timing tests
+function clearcache( ; to_clear = CacheList) 
+    # can't empty ExistingSurreals, or it breaks things, and doesn't reduce costs much anyway
+    for C in to_clear
+        empty!(C)
+    end
+    return 1
+end
+
+# replace zeta function with a version that uses the cache
+function zeta( s::Number, ::Memoization  )
+    if haskey( CacheZeta, s )
+        return CacheZeta[s]
+    else
+        z = SpecialFunctions.zeta(s)
+        CacheZeta[s] = z
+        return z
+    end
+end
+
+####
+#### Now start some real code
+####
 """
     polylog(s, z)
 
@@ -66,7 +93,8 @@ There are additional keywords, but these are currently intended for testing not 
 ## Output Arguments
 * ``Li_s(z)``: The result
 * ``n``:       The number of elements used in each series
-* `series`:    The series used to compute results (4 = reciprocal)
+* `series`:    The series used to compute results (note this will be a tree when recursion is used
+* `max_recursion`:  The maximum depth of the recursion
 
 ## Examples
 ```jldoctest; setup = :(using Polylogarithms)
@@ -75,38 +103,40 @@ julia> polylog(0.35, 0.2, Diagnostics() )
 ```
 """
 function polylog(s::Number, z::Number, ::Diagnostics;
-                 level=1, # keep track of recursion
+                 level=0, # keep track of recursion
                  accuracy::Float64=default_accuracy,
                  min_iterations::Integer=0,
                  max_iterations::Integer=default_max_iterations)
     tau_threshold = 1.0e-3
     μ = log(convert(Complex{Float64}, z)) # input z could be an integer or anything
     t = abs(μ/twoπ)
-    T = 0.512 # the duplication formula seems to work if T=0.5 in the small associated wedge, but wyh risk it?
+    T = 0.512 # the duplication formula seems to work if T=0.5 in the small associated wedge, but why risk it?
+    # K = 36.84/twoπ # |z|>log(1.0e+16) # conservative bound at which we swap to asymptotic expansion
+    s_int = round(real(s)) # nearest real integer to s (presuming it is nearly real)
     if abs(μ) < 1.0e-14
-        # deal with this case separately or it causes pain in Series 2 and 3, which should be resolvable, but its just easier here
-        # there are lots of other special cases to add here eventually
+        # Deal with this case separately or it causes pain in Series 2 and 3, which should be resolvable,
+        # but its just easier here.
         if real(s) > 1
-            return SpecialFunctions.zeta(s), 0, 0
+            return zeta(s, Memoization() ), 0, 0, 0
         else
-            return typeof(z)(Inf), 0 , 0
+            return typeof(z)(Inf), 0, 0, 0
         end
+        # There are lots of other special cases to add here eventually
     elseif abs(z) <= 0.5 && abs(z) < t
         return polylog_series_1(s, z; accuracy=accuracy, min_iterations=min_iterations, max_iterations=max_iterations)
-    elseif t <= T && ( abs(round(real(s))-s) > tau_threshold || real(s)<= 0 )
+    elseif t <= T && ( abs(s_int-s) > tau_threshold || real(s)<= 0 )
         return polylog_series_2(s, z; accuracy=accuracy, min_iterations=min_iterations, max_iterations=max_iterations)
     elseif t <= T &&  abs(s) <= tau_threshold # deal with small, positive values of s
         return polylog_series_2(s, z; accuracy=accuracy, min_iterations=min_iterations, max_iterations=max_iterations)
+    # elseif t > K 
+    #     return  polylog_asympt_series_1(s, z; accuracy=accuracy, min_iterations=min_iterations, max_iterations=max_iterations)
     elseif t <= T
         return polylog_series_3(s, z; accuracy=accuracy, min_iterations=min_iterations, max_iterations=max_iterations)
-#    elseif t <= 2.0
+    elseif abs(s_int-s) > tau_threshold || real(s)<= 0
+        return polylog_root(s, z; level=level, accuracy=accuracy, min_iterations=min_iterations, max_iterations=max_iterations)
     else
-        # println("  main level $level, z=$z,  abs(μ)/2π = ", abs(log(z))/twoπ  )
+        # use duplication for now, but should prolly be replaced by a mth-root-m of series 3
         return polylog_duplication(s, z; level=level, accuracy=accuracy, min_iterations=min_iterations, max_iterations=max_iterations)
-    # elseif abs(z) > 1
-    #     return polylog_reciprocal(s, z; accuracy=accuracy, min_iterations=min_iterations, max_iterations=max_iterations)
-    # else
-    #     throw(DomainError(z, "bad z value $z with |z|=$(abs(z)) and |log(z)/(twoπ)|=$(abs(μ/twoπ))"))
     end
     # we could have a lot more special cases here, particularly for integer input
     # to make the code faster for these cases, but at the moment may use such values for testing
@@ -171,9 +201,9 @@ end
 #### these aren't intended for general use, just for testing (at the moment)
 
 # # calculate using the relationship to the Hurwitz zeta function
+# #   N.B. this doesn't seem to work as well as you might think
+# # Julia's "generalised Hurwitz zeta" is the second form (called Zeta in Mathematica), not the one we need
 # function polylog_zeta(s::Number, z::Number, accuracy=default_accuracy)
-#     # compute using the Hurwitz-zeta function identity
-#     #   N.B. this doesn't seem to work as well as you might think
 #     x = im * (log(convert(Complex{Float64}, -z)) / twoπ)
 #     ss = 1-s
 #     ip = im^ss
@@ -188,20 +218,153 @@ function polylog_duplication(s::Number, z::Number;
                              max_iterations::Integer=default_max_iterations)
     z = convert(Complex{Float64}, z)
     f = min( 0.5, 2.0^(1-real(s)) )
+#     f = 2.0^(-real(s)) # does bad things
+#     f = 1.0 # does bad things
     # println("  dup level $level, z=$z,  abs(μ)/2π = ", abs(log(z))/twoπ  )
-    (Li1, k1, series1) = polylog(s,  sqrt(z), Diagnostics();
-                                 level=level+1, accuracy=f*accuracy,
-                                 min_iterations=min_iterations, max_iterations=max_iterations)
-    (Li2, k2, series2) = polylog(s, -sqrt(z), Diagnostics();
-                                 level=level+1, accuracy=f*accuracy,
-                                 min_iterations=min_iterations, max_iterations=max_iterations)
+    (Li1, k1, series1, max_recursion1) = polylog(s,  sqrt(z), Diagnostics();
+                                                 level=level+1, accuracy=f*accuracy,
+                                                 min_iterations=min_iterations,
+                                                 max_iterations=max_iterations)
+    (Li2, k2, series2, max_recursion2) = polylog(s, -sqrt(z), Diagnostics();
+                                                 level=level+1, accuracy=f*accuracy,
+                                                 min_iterations=min_iterations,
+                                                 max_iterations=max_iterations)
     if typeof(s) <: Real
         s = convert(Float64, s) # convert s into a double
     elseif typeof(s) <: Complex
-        s = convert(Complex{Float64}, s) # convert s into doubles
+        s = convert(Complex{Float64}, s) # convert s into a (complex) double
     end
-    return (2^(s-1) * ( Li1 + Li2 ), k1 + k2, 10+series1+series2)
+    max_recursion = max( level, max_recursion1, max_recursion2 )
+    return (2^(s-1) * ( Li1 + Li2 ), k1 + k2, (series1, series2), max_recursion )
 end
+
+# calculate using the m-th root formula, naive version
+#   this doesn't fix the cancellation problem of the duplication formula
+#   so it is only included as a reference
+function polylog_root_old(s::Number, z::Number;
+                          level=0, # keep track of recursion
+                          accuracy::Float64=default_accuracy,
+                          min_iterations::Integer=0,
+                          max_iterations::Integer=default_max_iterations,
+                          α = 1.2)
+    # α = 1.2 inconvenient compromise, could result in one step of duplication formula,
+    # but if α is too close to 1.0 it inflates m a lot
+    z = convert(Complex{Float64}, z)
+    μ = log(z)
+    m = ceil( real(μ) / (sqrt(α^2-1)*pi) )
+    f = min( 0.5, m^(1-real(s)) )
+    zm = exp(μ/m)
+    L = 0
+    k = 0
+    series = []
+    max_recursion = level
+    for j = 0 : 1 : m - 1
+        x = zm * exp( (im * 2 * pi * j )/ m )
+        (Li1, k1, series1, max_recursion1) = polylog(s,  x, Diagnostics();
+                                                     level=level+1, accuracy=f*accuracy,
+                                                     min_iterations=min_iterations,
+                                                     max_iterations=max_iterations)
+        L += Li1
+        k += k1
+        series = push!( series, series1 )
+        max_recursion = max( max_recursion, max_recursion1)
+    end
+    
+    if typeof(s) <: Real
+        s = convert(Float64, s) # convert s into a double
+    elseif typeof(s) <: Complex
+        s = convert(Complex{Float64}, s) # convert s into a (complex) double
+    end
+    return ( m^(s-1) * L, k, Tuple(series), max_recursion )
+end
+
+# calculate using the m-th root formula, summation order reversal in series 2
+#   presuming s isn't near integer values ... 
+function polylog_root(s::Number, z::Number;
+                      level=0, # keep track of recursion
+                      accuracy::Float64=default_accuracy,
+                      min_iterations::Integer=0,
+                      max_iterations::Integer=default_max_iterations,
+                      α = 1.2)
+    # α = 1.2 inconvenient compromise, could result in one step of duplication formula,
+    # but if α is too close to 1.0 it inflates m a lot
+    
+    if typeof(s) <: Real
+        s = convert(Float64, s) # convert s into a double
+    elseif typeof(s) <: Complex
+        s = convert(Complex{Float64}, s) # convert s into a (complex) double
+    end
+    z = convert(Complex{Float64}, z)
+    μ = log(z)
+    m = max( 2, Integer(ceil( real(μ) / (sqrt(α^2-1)*pi) )) ) # no point in this series unless m>1
+    μ_m = μ/m
+    k = 0
+    series = []
+    max_recursion = level
+    ell = Integer(ceil( -m/2 - imag(μ)/twoπ ))
+                                      # ell such that
+                                      #   -π <=  (imag(μ) + 2*π*ell)/m
+                                      #          (imag(μ) + 2*π*(ell+m-1))/m < π
+
+    # first term
+    oneminuss = 1.0 - s
+    eval_points = [ μ_m  +  twoπ * im * (j/m)  for  j = ell : ell + m - 1 ]
+    for i=1:m
+        tmp = eval_points[i]
+        if imag(tmp) < -π 
+            error("  bad choice (1) of ℓ = $ell, m=$m, i=$i, μ=$μ, μ_m=$μ_m, tmp=$tmp")
+        end
+        if imag(tmp) >= π
+            error("  bad choice (2) of ℓ = $ell, m=$m, i=$i, μ=$μ, μ_m=$μ_m, tmp=$tmp")
+        end
+    end
+    total = 0.0
+    for i=1:m
+        total += (-eval_points[i])^(-oneminuss)
+    end
+    total *= SpecialFunctions.gamma(oneminuss)
+
+    # series
+    converged = false
+    tmp = 1
+    k = 0
+    a = Inf
+    a_2 = Inf
+    summation_terms = ones(ComplexF64, m)
+    summation_terms_old = ones(ComplexF64, m)
+    while k<=max_iterations && ~converged
+        a_2 = a
+        a = sum(summation_terms)
+        a *= zeta(s - k, Memoization())
+        total += a
+
+        for i=1:m
+            tmp = eval_points[i]
+            summation_terms_old[i] = summation_terms[i]
+            summation_terms[i] *= tmp / (k+1)
+        end
+        
+        if k > min_iterations &&
+               abs(a)/abs(total) < 0.5*accuracy &&
+               abs(a_2)/abs(total) < 0.5*accuracy &&
+               abs(a_2) > abs(a)
+            converged = true
+        end
+        k = k + 1
+    end
+    L = m^(s-1) * total
+    
+    # get correct value along the branch
+    if isreal(z) && real(z)>=1
+        # total -= 2*π*im*μ^(s-1)/SpecialFunctions.gamma(s)
+        L -= exp( log(twoπ*im) + (s-1)*log(μ) - SpecialFunctions.loggamma(s) )
+    end
+ 
+    series = 2 + 10*m # use this to signal the value of m used with series 2
+    return (L, k, series, max_recursion )
+end
+
+
 
 # # calculate using the reciprocal formula
 # function polylog_reciprocal(s::Number, z::Number;
@@ -269,7 +432,9 @@ function polylog_series_1(s::Number, z::Number;
             converged = true
         end
     end
-    return (total, k, 1)
+    series = 1
+    max_recursion = 0
+    return (total, k, series, max_recursion)
 end
 
 # calculate using power series around μ = log(z) = 0
@@ -278,6 +443,7 @@ function polylog_series_2(s::Number, z::Number;
                           accuracy::Float64=default_accuracy,
                           min_iterations::Integer=0,
                           max_iterations::Integer=default_max_iterations )
+
     μ = log(convert(Complex{Float64}, z)) # input z could be an integer or anything
     if typeof(s) <: Real
         s = convert(Float64, s) # convert s into a double
@@ -307,7 +473,7 @@ function polylog_series_2(s::Number, z::Number;
     while k<=max_iterations && ~converged
         a_3 = a_2
         a_2 = a
-        a = tmp * SpecialFunctions.zeta(s - k)
+        a = tmp * zeta(s - k, Memoization())
         total += a
         tmp *= μ/(k+1)
         if k > min_iterations &&
@@ -321,12 +487,16 @@ function polylog_series_2(s::Number, z::Number;
         end
         k = k + 1
     end
+    
     # get correct value along the branch
     if isreal(z) && real(z)>=1
         # total -= 2*π*im*μ^(s-1)/SpecialFunctions.gamma(s)
         total -= exp( log(twoπ*im) + (s-1)*log(μ) - SpecialFunctions.loggamma(s) )
     end
-    return (total, k, 2)
+    
+    series = 2
+    max_recursion = 0
+    return (total, k, series, max_recursion)
 end
 
 function c_closed(n::Integer, j::Integer,  ℒ::Number)
@@ -449,7 +619,7 @@ function polylog_series_3(s::Number, z::Number;
     while k<=max_iterations && ~converged
         if n - k != 1
             a_2 = a
-            a = tmp * SpecialFunctions.zeta(s - k)
+            a = tmp * zeta(s - k, Memoization() )
             total += a
         end
         tmp *= μ/(k+1)
@@ -466,32 +636,45 @@ function polylog_series_3(s::Number, z::Number;
     if isreal(z) && real(z)>=1 
         total -= 2*π*im*μ^(s-1)/SpecialFunctions.gamma(s)
     end
-    return (total, k, 3)
+    series = 3
+    max_recursion = 0
+    return (total, k, series, max_recursion)
 end
 
-# # asymptotic expansion
-# function polylog_series_4(s::Number, z::Number;
-#                           accuracy::Float64=default_accuracy,
-#                           min_iterations::Integer=0,
-#                           max_iterations::Integer=default_max_iterations,
-#                           existing_total::Number=0.0)
-#     x = log(-convert(Complex{Float64}, z))
-#     total = 0.0
-#     converged = false
-#     k = 0
-#     a = Inf
-#     while k<=max_iterations && ~converged
-#         old_a = a
-#         a = (-1)^k * (1.0 - 2.0^(1-2*k)) * twoπ^(2*k) * bernoulli(2*k,0.0) * x^(s-2*k) / ( SpecialFunctions.gamma(2*k+1) * SpecialFunctions.gamma(s+1-2*k) )
-#         if abs(a) < abs(old_a)
-#             total += a
-#         else
-#             converged = true
-#         end
-#         k = k+1
-#     end
-#     return (total, k, 4)
-# end
+#
+# asymptotic expansion
+#     
+function polylog_asympt_series_1(s::Number, z::Number;
+                                 accuracy::Float64=default_accuracy,
+                                 min_iterations::Integer=0,
+                                 max_iterations::Integer=default_max_iterations,
+                                 existing_total::Number=0.0)
+    x = log(-convert(Complex{Float64}, z))
+    total = 0.0
+    converged = false
+    k = 0
+    a = Inf
+    while k<=max_iterations && ~converged
+        old_a = a
+        a = (-1)^k * (1.0 - 2.0^(1-2*k)) * twoπ^(2*k) * bernoulli( Int128(2*k) ) * x^(s-2*k) /
+                  ( SpecialFunctions.gamma(2*k+1) * SpecialFunctions.gamma(s+1-2*k) )
+        if k>min_iterations &&
+            (abs(a) >= abs(old_a) || abs(a)/abs(total) < 0.5*accuracy || k>max_iterations )
+            converged = true
+        else
+            total += a
+            k = k+1
+        end
+    end
+    # get correct value along the branch
+    if isreal(z) && real(z)>=1 
+        μ = log(convert(Complex{Float64}, z))
+        total -= 2*π*im*μ^(s-1)/SpecialFunctions.gamma(s)
+    end 
+    series = 4
+    max_recursion = 0
+    return (total, k, series, max_recursion)
+end
 
 
 # ##################################################

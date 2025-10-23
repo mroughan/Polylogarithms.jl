@@ -12,7 +12,6 @@ include("utilities.jl")
 series_1 = Polylogarithms.polylog_series_1
 series_2 = Polylogarithms.polylog_series_2
 series_3 = Polylogarithms.polylog_series_3
-series_4 = Polylogarithms.polylog_series_4
 L = Symbol("Li_s(z)")
     
 
@@ -56,18 +55,11 @@ L = Symbol("Li_s(z)")
     n1 = zeros(Int64, m)
     error1 = zeros(Float64, m)
     rel_error1 = zeros(Float64, m)
-    n2 = zeros(Int64, m)
+    n2 = zeros(Int64, m) 
     error2 = zeros(Float64, m)
     rel_error2 = zeros(Float64, m)
     
     for i=1:m
-        # print(".")
-        result1 = series_4(s[i], z[i])
-        S1[i] = result1[1]
-        n1[i] = result1[2]
-        error1[i] = abs( S1[i] - Li[i]  )
-        rel_error1[i] = error1[i]/abs( Li[i] )
-        
         # result2 = - log(z[i])^s[i] / gamma(s[i]+1) # s neq -1,-2,-3,...
         result2 = - exp( s[i] * log(log(z[i])) - loggamma(s[i]+1) )# s neq -1,-2,-3,...
         S2[i] = result2
@@ -75,7 +67,6 @@ L = Symbol("Li_s(z)")
         error2[i] = abs( S2[i] - Li[i]  )
         rel_error2[i] = error2[i]/abs( Li[i] )
     end
-    println("   max abs. error1 = $(maximum( abs.(error1) ))")
     println("   max abs. error2 = $(maximum( abs.(error2) ))")
     
     fig = figure(@sprintf("../data/polylog_bench_a_%02d.csv", C), figsize=(10,8))
@@ -85,8 +76,8 @@ L = Symbol("Li_s(z)")
     ms = 3
 
     subplot(221)
-    loglog( data1[!,:r] .- d, rel_error1, "o"; markersize=ms)
-    plot( data1[!,:r] .+ d, rel_error2, "rd"; markersize=ms)
+    # loglog( data1[!,:r] .- d, rel_error1, "o"; markersize=ms)
+    loglog( data1[!,:r] .+ d, rel_error2, "rd"; markersize=ms)
     xlabel("|z|")
     ylabel("relative absolute error")
     # plot([0,1.1], [1,1]*Polylogarithms.default_accuracy)
@@ -109,7 +100,7 @@ L = Symbol("Li_s(z)")
     # xlim([0, 1.15])
     
     subplot(222)
-    semilogy( data1[!,:theta] ./ π .- d, rel_error1, "o"; label="Series 4", markersize=ms)
+    # semilogy( data1[!,:theta] ./ π .- d, rel_error1, "o"; label="Series 4", markersize=ms)
     semilogy( data1[!,:theta] ./ π .+ d, rel_error2, "rd"; label="Limit", markersize=ms)
     xlabel("arg(z)/π")
     ylabel("relative absolute error")
