@@ -1,6 +1,7 @@
 # test functionality and identities
 include("test_defs.jl")
 Q = Polylogarithms.Q
+Z = [3.0 + 0.4im, -3.0 + 0.4im, 3.0 - 0.4im, -3.0 + -0.4im, 2.0 + 0.1im, -5.0 + 0.1im, 0.0 + 6im]
 
 @testset "Polylogarithm polylog identities and special values" begin
     
@@ -85,7 +86,7 @@ Q = Polylogarithms.Q
         @test polylog(Complex(-1.0), Complex(0.3)) ≈ polylog(-1.0, 0.3)
     end
 
-    # check specific known values
+    # check specific known values, and consistency of identities
     @testset "     s = n (a real integer)" begin
         # simple cases
         @test polylog(1, 0.5) ≈ log(2)
@@ -94,7 +95,10 @@ Q = Polylogarithms.Q
         @test !isfinite( polylog(0.5 + 0.5im, 1.0) )     # the singularity
         @test polylog(1, 2) ≈ -pi*im # comes from -log(complex(1-2))
     
-        @testset "     dilogarithm for real z" begin
+        @testset "     dilogarithm special values for real z" begin
+            @test dilog(3.0) == polylog(2, 3.0)
+
+            # for instance, see https://maths.dur.ac.uk/users/herbert.gangl/dilog.pdf (Zagier, 2007)
             @test polylog(2,-1.0)    ≈ -pi^2/12.0
             @test polylog(2, 0.0)    ≈ 0.0
             @test polylog(2, 0.5)    ≈ pi^2/12 - 0.5*log(2)^2
@@ -107,24 +111,97 @@ Q = Polylogarithms.Q
             @test polylog(2, φ)      ≈  11*pi^2/15 + log(Complex(-1/φ))^2/2 # wiki has this one, but no ref
             @test polylog(2, φ^2)    ≈ -11*pi^2/15 - log(Complex(-φ))^2
 
-            # identities for dilogarithm
-            Z = [3.0 + 0.4im, -3.0 + 0.4im, 3.0 - 0.4im, -3.0 + -0.4im]
+            # https://mathworld.wolfram.com/Dilogarithm.html (from Ramanujan)
+            @test polylog(2,  1/3) - (1/6)*polylog(2, 1/9) ≈  pi^2/18 - log(3)^2/6
+            @test polylog(2, -1/3) - (1/3)*polylog(2, 1/9) ≈ -pi^2/18 + log(3)^2/6
+            @test polylog(2, -1/2) + (1/6)*polylog(2, 1/9) ≈ -pi^2/18 + log(2)*log(3) - log(2)^2/2 - log(3)^2/3
+            @test polylog(2,  1/4) + (1/3)*polylog(2, 1/9) ≈  pi^2/18 + 2*log(2)*log(3) - 2*log(2)^2 - 2*log(3)^2/3
+            # @test polylog(2, -1/8) +       polylog(2, 1/9) ≈  -log(9/8)^2/2.0 # this one is just outside range
+            # Berndt 1994, Gordon and McIntosh 1997
+            @test 36*polylog(2, 1/2) - 36*polylog(2, 1/4) - 12* polylog(2, 1/8) + 6 * polylog(2, 1/64)  ≈  pi^2
+            # Lima and Campbell
+            @test polylog(2, φ^(-3)) -  polylog(2, -φ^(-3)) ≈  φ^3 * ( pi^2 - 18*log(φ)^2 ) / (3 * (φ^6 - 1) )
+            
+            # could add in more of the "polylogarithm ladders" here
+            # and there are a few more muhc more complicated ones in mathworld
+         end
+        
+        @testset "     dilogarithm identities (sometimes called functional equations)" begin
             for i=1:length(Z)
                 z = Z[i]
-                @test polylog(2, z) + polylog(2, 1/z) ≈ -pi^2/6.0 - log(Complex(-z))^2/2.0
-            end
-        end
+                @test polylog(2, z) + polylog(2, 1/z)   ≈ -pi^2/6.0 - log(Complex(-z))^2/2.0
+                @test polylog(2, z) + polylog(2, - z)   ≈ polylog(2, z^2) / 2.0
+                @test polylog(2, z) + polylog(2, 1 - z) ≈ pi^2/6.0 - log(Complex(z)) * log(Complex(1-z))
 
-        @testset "     trilogarithm for real z" begin
+                if real(z) > 0.0
+                    # not stated, eg Zagier, but seems to be consistent with Rogers
+                    @test polylog(2, -z) - polylog(2, 1 - z) + polylog(2, 1 - z^2)/2.0 ≈ -pi^2/12.0 - log(Complex(z))*log(Complex(z+1))
+                end
+            end 
+        end
+        
+        @testset "     Spence's function" begin
+            @test spence(3.0) == polylog(2, 3.0)
+        end
+        
+        @testset "     Rogers L-function" begin
+            # Bytsko, 1999, https://arxiv.org/abs/math-ph/9911012
+            #   these are the only five algebraic numbers on [0,1] st output is rational
+            @test rogers(0.0)   ≈  0
+            @test rogers(0.5)   ≈  1/2 # also from  Rogers (1907), p.189
+            @test rogers(1.0)   ≈  1
+            @test rogers(ρ)     ≈  3/5
+            @test rogers(1-ρ)   ≈  2/5
+
+            @test rogers((3-sqrt(5))/2 ) ≈ 6/15 # from Rogers (1907), p.189
+
+            @test rogers( λ^(-2) ) + rogers( (λ^2-1)^(-2) )      ≈ 4/7 # Bytsko (3.2)
+            @test rogers( λ^(-2) ) + rogers( (1+λ)^(-1) )        ≈ 5/7 # Bytsko (3.5)
+            @test rogers( sqrt(ρ) ) + rogers( 1/ (1 + sqrt(ρ)) ) ≈ 13/10 # Bytsko (3.16)
+            @test rogers( 0.5 - 0.5*ρ) + rogers( 2*ρ -1 )        ≈ 1/2 # Bytsko (3.24)
+            @test rogers(1 - 1/sqrt(2)) + rogers(sqrt(2)-1)      ≈ 3/4 # Bytsko (3.14)
+            @test rogers(1/sqrt(2)) - rogers(sqrt(2)-1)          ≈ 1/4 # Bytsko (3.14)
+            
+            for i=1:length(Z)
+                z = Z[i]
+                @test rogers(z) + rogers(1-z)  ≈  1.0 # concise reflection relation
+
+                if real(z) >= 0 # not stated anywhere, but this ID only works for Re(z) >= 0
+                    @test rogers(z^2)/2.0  ≈  rogers(z) - rogers( z/(1+z) )   # Abel's duplication formula via Bytsko (3.8),p.6
+                    # NB this follows from "Abel's Functional Equation" with L(x) + L(x) (ie x=y)
+                    # but that seems to go back to Rogers (1907), (11) and hence (12)
+                end
+            end
+            
+            # Zagier "APPENDIX: SPECIAL VALUES AND FUNCTIONAL EQUATIONS OF POLYLOGARITHMS", p.6
+            #   but noting that he seems to use the 2nd defintion Gordon and McIntosh (1997) and Loxton (1991, p. 287)
+            @test (pi^2/6) * ( 6*rogers(1/3) - rogers(1/9) ) ≈  pi^2 / 3.0
+
+            # there are many more we could put here, but they somewhat double up on the poly checks
+        end
+        
+        @testset "     trilogarithm special values for real z" begin
+            @test trilog(3.0) == polylog(3, 3.0)
+
             # https://mathworld.wolfram.com/Trilogarithm.html
             @test polylog(3,-1.0)             ≈ -3*zeta(3)/4
             @test polylog(3, 0.0)             ≈ 0.0
             @test polylog(3, 0.5)             ≈ log(2)^3/6.0 - pi^2*log(2)/12.0 + (7.0/8.0)*zeta(3)
             @test polylog(3, 1.0)             ≈ zeta(3)
             @test polylog(3, Float64(φ)^(-2)) ≈ 4*zeta(3)/5 + 2*log(φ)^3/3 - 2*pi^2*log(φ)/15
-        end
+            
+            for i=1:length(Z)
+                z = Z[i]
+                # this one isn't accurate enough yet?: @test polylog(3,z) + polylog(3,1-z) + polylog(3,1- 1/z) ≈ zeta(3) + log(z)^2/6 + π^2 * log(z)/6 - log(z)^2*log(1-z)/2
+
+                # Bailey, D. H.; Borwein, P. B.; and Plouffe, S. "On the Rapid Computation of Various Polylogarithmic Constants." Math. Comput. 66, 903-913, 1997.
+                @test  36*polylog(3, 1/2) - 18*polylog(3, 1/4) - 4*polylog(3, 1/8) +   polylog(3, 1/64) ≈ (35/2)*zeta(3) - π^2 * log(2)
+                @test -24*polylog(3, 1/2) + 18*polylog(3, 1/4) + 4*polylog(3, 1/8) -   polylog(3, 1/64) ≈ 2*log(2)^3 - 7*zeta(3)
+                @test (-48*polylog(3, 1/2) + 54*polylog(3, 1/4) +12*polylog(3, 1/8) - 3*polylog(3, 1/64) ≈ 10*log(2)^3 - 2* π^2 *log(2))
+             end
+       end
         
-        @testset "     general case for real z" begin
+        @testset "     general s=n case for real z" begin
             X = collect(-3.0:0.1:3.0)
             for i=1:length(X)
                 x = X[i]
@@ -138,7 +215,7 @@ Q = Polylogarithms.Q
             end
         end
         
-        @testset "     general case for complex z" begin
+        @testset "     general s=n case for complex z" begin
             X = collect(-3.0:0.5:3.0)
             Y = [-1.3, -0.4, 0.4, 1.5]
             for i=1:length(X)
@@ -156,7 +233,7 @@ Q = Polylogarithms.Q
         end    
     end
 
-    @testset "    particular values |z| == 1" begin
+    @testset "    particular values |z| == 1 for complex s" begin
         S_r = [2.1 2.5 3.0]
         S_i = [-1.3, -1.0, -0.5, 0.0, 0.5, 1.0, 1.3]
         for i=1:length(S_r)
@@ -174,7 +251,7 @@ Q = Polylogarithms.Q
         @test polylog( 0.000964487315968654, 0.25 ) ≈  0.3332677049928309 # small, positive s shouldn't use series 3
     end
     
-    @testset "    additional Identities" begin
+    @testset "    additional identities" begin
         z = 0.5
         for n=1:5
             @test polylog(-n,z) + (-1)^n * polylog(-n, 1/z) ≈ 0.0 
@@ -182,11 +259,11 @@ Q = Polylogarithms.Q
 
         # for real s, and real z<1, polylog should be real
         S = [-1, 0.1, 2]
-        Z = [-2, -1.0, 0.1, 0.95]
+        Zr = [-2, -1.0, 0.1, 0.95]
         for i=1:length(S)
-            for j=1:length(Z)
+            for j=1:length(Zr)
                 s = S[i]
-                z = Z[j]
+                z = Zr[j]
                 # println("s = $s; z = $z")
                 @test abs( imag( polylog(s,  z) ) ) < 1.0e-12 # actually they usually do better than this
             end
@@ -194,11 +271,11 @@ Q = Polylogarithms.Q
 
         # for real s, and real z>=1, the imaginary part is given
         S = [-1.5, 0.1, 2]
-        Z = [1.05, 3.0]
+        Zr = [1.05, 3.0]
         for i=1:length(S)
-            for j=1:length(Z)
+            for j=1:length(Zr)
                 s = S[i]
-                z = Z[j]
+                z = Zr[j]
                 # println("s = $s; z = $z")
                 μ = log(z)
                 @test imag( polylog(s,  z) ) ≈ -pi*μ^(s-1)/gamma(s)
@@ -220,47 +297,47 @@ Q = Polylogarithms.Q
     
     # diagnostics
     @testset "    diagnostics" begin
-        S = [ -1.0 ,  0.5+0.5im,  3.0,   -1.5,         -1.5,        -1.5,      1   ]
-        Z = [ -0.25, 1.0 + im,   -1.0,  -50.0, -400 + 250im, 600 + 600im,  -500.0  ]
+        S  = [ -1.0 ,  0.5+0.5im,  3.0,   -1.5,         -1.5,        -1.5,      1   ]
+        Zc = [ -0.25, 1.0 + im,   -1.0,  -50.0, -400 + 250im, 600 + 600im,  -500.0  ]
 
         # series 1 cases, polylog(-1, z) ≈ z ./ (1-z).^2
         i = 1
         s = S[i]
-        z = Z[i]
+        z = Zc[i]
         @test all( polylog(s, z, Diagnostics()) .≈ ( z ./ (1-z).^2, 24, 1, 0) )
 
         # series 2 cases
         i = 2
         s = S[i]
-        z = Z[i]
+        z = Zc[i]
         @test all( polylog(s, z, Diagnostics()) .≈ ( polylog(s, z), 16, 2, 0) )
         
         # series 3 cases,    polylog(3,-1.0)             ≈ -3*zeta(3)/4
         i = 3
         s = S[i]
-        z = Z[i]
+        z = Zc[i]
         @test all( polylog(s, z, Diagnostics()) .≈ ( -3*zeta(3)/4, 36, 3, 0) )
         
         # m-th root multiplication formula
         i = 4
         s = S[i]
-        z = Z[i]
+        z = Zc[i]
         @test all( polylog(s, z, Diagnostics()) .≈ ( polylog(s, z), 36, 22, 0) )
       
         i = 5
         s = S[i]
-        z = Z[i]
+        z = Zc[i]
         @test all( polylog(s, z, Diagnostics()) .≈ ( polylog(s, z), 58, 32, 0) )
 
         i = 6
         s = S[i]
-        z = Z[i]
+        z = Zc[i]
         @test all( polylog(s, z, Diagnostics()) .≈ ( polylog(s, z),  52, 42, 0) )
 
         # duplication recursion
         i = 7
         s = S[i]
-        z = Z[i]
+        z = Zc[i]
         @test all( polylog(s, z, Diagnostics()) .≈ ( polylog(s, z), 120, ((3, 3), (3, 3)), 1) )
     end
                    

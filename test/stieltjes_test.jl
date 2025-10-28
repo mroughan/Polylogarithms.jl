@@ -27,7 +27,6 @@ include("test_defs.jl")
         @test abs(stieltjes(3) - gen_euler_calc(3)) < 1.0e-3 # this series is a little crude as a test
     end
 
-   
     @testset "    values (2)" begin
         # these values are taken from alt sources to provide some tests
         

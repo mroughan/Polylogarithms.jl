@@ -31,5 +31,13 @@ Major changes from v0.01 to v0.02
   directories? 
 
 6. Many of the tests have been changed to reflect the above, and new
-   test data has been added.
+   test data has been added as well as around 100 new
+   identities for consistency and special value checking.
+
+7. Added some new functions 
+
+   + Rogers L-function
+   + Spence's function
+   + Dilogarithm
+   + Trilogarithm
 

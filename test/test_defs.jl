@@ -6,6 +6,8 @@ using DataFrames, CSV
 using Printf
 
 import Base.MathConstants: π, pi, ℯ, e, γ, eulergamma, catalan, φ, golden
+ρ = 1.0 / φ
+λ = 2.0 * cos(π/7)
 
 # functions for comparisons of results
 

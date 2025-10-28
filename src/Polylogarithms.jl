@@ -10,6 +10,7 @@ import SpecialFunctions
 # using Base.MPFR: ROUNDING_MODE, big_ln2
 
 export polylog, bernoulli, euler, harmonic, stieltjes, dirichlet_beta
+export rogers, spence, dilog, trilog
 export Diagnostics
 export parse
 export Memoization, CacheZeta, clearcache
@@ -39,5 +40,6 @@ include("harmonic.jl")
 include("beta.jl")
 include("bernoulli_poly.jl")
 include("polylog.jl")
+include("additional_functions.jl")
 
 end
