@@ -40,4 +40,7 @@ Major changes from v0.01 to v0.02
    + Spence's function
    + Dilogarithm
    + Trilogarithm
+   + Tetralogarithm
+
+
 

@@ -10,7 +10,7 @@ import SpecialFunctions
 # using Base.MPFR: ROUNDING_MODE, big_ln2
 
 export polylog, bernoulli, euler, harmonic, stieltjes, dirichlet_beta
-export rogers, spence, dilog, trilog
+export rogers, spence, dilog, trilog, tetralog
 export Diagnostics
 export parse
 export Memoization, CacheZeta, clearcache

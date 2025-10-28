@@ -117,13 +117,16 @@ Z = [3.0 + 0.4im, -3.0 + 0.4im, 3.0 - 0.4im, -3.0 + -0.4im, 2.0 + 0.1im, -5.0 + 
             @test polylog(2, -1/2) + (1/6)*polylog(2, 1/9) ≈ -pi^2/18 + log(2)*log(3) - log(2)^2/2 - log(3)^2/3
             @test polylog(2,  1/4) + (1/3)*polylog(2, 1/9) ≈  pi^2/18 + 2*log(2)*log(3) - 2*log(2)^2 - 2*log(3)^2/3
             # @test polylog(2, -1/8) +       polylog(2, 1/9) ≈  -log(9/8)^2/2.0 # this one is just outside range
-            # Berndt 1994, Gordon and McIntosh 1997
-            @test 36*polylog(2, 1/2) - 36*polylog(2, 1/4) - 12* polylog(2, 1/8) + 6 * polylog(2, 1/64)  ≈  pi^2
+            # Berndt 1994, Gordon and McIntosh 1997, also BBP (2.3)
+            @test 36*polylog(2, 1/2) - 36*polylog(2, 1/4) - 12*polylog(2, 1/8) + 6 * polylog(2, 1/64)  ≈  pi^2
             # Lima and Campbell
             @test polylog(2, φ^(-3)) -  polylog(2, -φ^(-3)) ≈  φ^3 * ( pi^2 - 18*log(φ)^2 ) / (3 * (φ^6 - 1) )
-            
+            # BBP (2.4)
+            @test 4*polylog(2, 1/2) - 6*polylog(2, 1/4) - 2*polylog(2, 1/8) + polylog(2, 1/64)  ≈  log(2)^2
+           
             # could add in more of the "polylogarithm ladders" here
-            # and there are a few more muhc more complicated ones in mathworld
+            # and there are a few more much more complicated ones in mathworld
+            # or general form in BBP (2.16)
          end
         
         @testset "     dilogarithm identities (sometimes called functional equations)" begin
@@ -137,6 +140,13 @@ Z = [3.0 + 0.4im, -3.0 + 0.4im, 3.0 - 0.4im, -3.0 + -0.4im, 2.0 + 0.1im, -5.0 + 
                     # not stated, eg Zagier, but seems to be consistent with Rogers
                     @test polylog(2, -z) - polylog(2, 1 - z) + polylog(2, 1 - z^2)/2.0 ≈ -pi^2/12.0 - log(Complex(z))*log(Complex(z+1))
                 end
+
+                # more possibilities at https://functions.wolfram.com/ZetaFunctionsandPolylogarithms/PolyLog/17/ShowAll.html
+
+            
+                # Landen’s identity, for z real and <1
+                #    Li2(z) + Li2(x/(x-1)) = -(1/2) log(1-x)^2
+                 
             end 
         end
         
@@ -161,7 +171,11 @@ Z = [3.0 + 0.4im, -3.0 + 0.4im, 3.0 - 0.4im, -3.0 + -0.4im, 2.0 + 0.1im, -5.0 + 
             @test rogers( 0.5 - 0.5*ρ) + rogers( 2*ρ -1 )        ≈ 1/2 # Bytsko (3.24)
             @test rogers(1 - 1/sqrt(2)) + rogers(sqrt(2)-1)      ≈ 3/4 # Bytsko (3.14)
             @test rogers(1/sqrt(2)) - rogers(sqrt(2)-1)          ≈ 1/4 # Bytsko (3.14)
-            
+
+            # from Dilogarithm identities and spectra in conformal field theory, Anatol N. Kirillov, arXiv:hep-th/9211137, (0.4)
+            @test rogers(ρ^20) - 2*rogers(ρ^10) - 15*rogers(ρ^4) + 10*rogers(ρ^2) ≈ 6/5
+            # there are many more in this doc, but none so cute
+             
             for i=1:length(Z)
                 z = Z[i]
                 @test rogers(z) + rogers(1-z)  ≈  1.0 # concise reflection relation
@@ -180,7 +194,7 @@ Z = [3.0 + 0.4im, -3.0 + 0.4im, 3.0 - 0.4im, -3.0 + -0.4im, 2.0 + 0.1im, -5.0 + 
             # there are many more we could put here, but they somewhat double up on the poly checks
         end
         
-        @testset "     trilogarithm special values for real z" begin
+        @testset "     trilogarithm special values and identities" begin
             @test trilog(3.0) == polylog(3, 3.0)
 
             # https://mathworld.wolfram.com/Trilogarithm.html
@@ -188,8 +202,17 @@ Z = [3.0 + 0.4im, -3.0 + 0.4im, 3.0 - 0.4im, -3.0 + -0.4im, 2.0 + 0.1im, -5.0 + 
             @test polylog(3, 0.0)             ≈ 0.0
             @test polylog(3, 0.5)             ≈ log(2)^3/6.0 - pi^2*log(2)/12.0 + (7.0/8.0)*zeta(3)
             @test polylog(3, 1.0)             ≈ zeta(3)
-            @test polylog(3, Float64(φ)^(-2)) ≈ 4*zeta(3)/5 + 2*log(φ)^3/3 - 2*pi^2*log(φ)/15
-            
+            @test polylog(3, Float64(φ)^(-2)) ≈ 4*zeta(3)/5 + 2*log(φ)^3/3 - 2*pi^2*log(φ)/15 # Duverney, An Introduction to Hypergeometric Functions, p.245, (8.35)
+
+            # https://math.stackexchange.com/questions/932932/known-exact-values-of-the-operatornameli-3-function
+            @test polylog(3, 2)            ≈ (pi^2/4) * log(2) + (7/8)*zeta(3) - (pi/2)*log(2)^2*im
+            @test polylog(3, Float64(φ)^2) ≈ (4/5)*zeta(3) - (2/3)*log(φ)^3 + (8/15)*pi^2*log(φ) - 2*pi*log(φ)^2*im
+            @test polylog(3, im)           ≈ -(3/32)*zeta(3) + (pi^3/32) * im
+            @test polylog(3, -im)          ≈ -(3/32)*zeta(3) - (pi^3/32) * im
+            @test imag(polylog(3, (1+im)/sqrt(2) )) ≈ 7 * pi^3 / 256
+            @test real(polylog(3, (1+im)/2 )) ≈ log(2)^3/48 - (5/192)*pi^2*log(2) + (35/64)*zeta(3)
+            @test real(polylog(3, (1+im))) ≈ (pi^2/32)*log(2) + (35/64)*zeta(3)
+
             for i=1:length(Z)
                 z = Z[i]
                 # this one isn't accurate enough yet?: @test polylog(3,z) + polylog(3,1-z) + polylog(3,1- 1/z) ≈ zeta(3) + log(z)^2/6 + π^2 * log(z)/6 - log(z)^2*log(1-z)/2
@@ -198,7 +221,7 @@ Z = [3.0 + 0.4im, -3.0 + 0.4im, 3.0 - 0.4im, -3.0 + -0.4im, 2.0 + 0.1im, -5.0 + 
                 @test  36*polylog(3, 1/2) - 18*polylog(3, 1/4) - 4*polylog(3, 1/8) +   polylog(3, 1/64) ≈ (35/2)*zeta(3) - π^2 * log(2)
                 @test -24*polylog(3, 1/2) + 18*polylog(3, 1/4) + 4*polylog(3, 1/8) -   polylog(3, 1/64) ≈ 2*log(2)^3 - 7*zeta(3)
                 @test (-48*polylog(3, 1/2) + 54*polylog(3, 1/4) +12*polylog(3, 1/8) - 3*polylog(3, 1/64) ≈ 10*log(2)^3 - 2* π^2 *log(2))
-             end
+            end
        end
         
         @testset "     general s=n case for real z" begin
@@ -215,6 +238,16 @@ Z = [3.0 + 0.4im, -3.0 + 0.4im, 3.0 - 0.4im, -3.0 + -0.4im, 2.0 + 0.1im, -5.0 + 
             end
         end
         
+        @testset "     tetralogarithm s=4 special values for real z" begin
+            @test tetralog(3.0) == polylog(4, 3.0)
+
+            # from https://math.stackexchange.com/questions/1373123/a-conjectured-identity-for-tetralogarithms-operatornameli-4
+            @test  96*polylog(4, 1/2) - 54*polylog(4, 1/4) - 8*polylog(4, 1/8) +   polylog(4, 1/64) ≈ 5*log(2)^4 - 2*pi^2*log(2)^2 + 4*pi^4/9
+
+            # there are some others on that list as well. but again, they mostly duplicate polylog tests
+            #  but maybe could include more of the ladders
+        end
+       
         @testset "     general s=n case for complex z" begin
             X = collect(-3.0:0.5:3.0)
             Y = [-1.3, -0.4, 0.4, 1.5]
