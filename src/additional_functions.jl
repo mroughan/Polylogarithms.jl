@@ -1,8 +1,9 @@
 """
-    rogers()
+    rogers(z)
 
  Calculates Rogers L-function
      https://mathworld.wolfram.com/RogersL-Function.html
+    Directly related to the dilogartihm.
 
  Note there are two possible versions, we use the one Bytsko, 1999, https://arxiv.org/abs/math-ph/9911012
  but note that this is a normalised form (the extra (6/π^2) such that rogers(1)=1) as compared to Rogers (1907)
@@ -25,10 +26,9 @@ function rogers(z::Number;
 end
 
 """
-    spence()
+    spence(z)
 
-    Essential just an alias
-
+    An alias for the dilogarith (polylog with s=2)
 """
 function spence(z::Number;
                 level=1, # keep track of recursion
@@ -40,10 +40,9 @@ end
 
 
 """
-    dilog()
+    dilog(z)
 
-    Essential just an alias
-
+    Just alias for the polylogarith with s=2
 """
 function dilog(z::Number;
                 level=1, # keep track of recursion
@@ -54,10 +53,9 @@ function dilog(z::Number;
 end
 
 """
-    trilog()
+    trilog(z)
 
-    Essential just an alias
-
+    Just alias for the polylogarith with s=3
 """
 function trilog(z::Number;
                 level=1, # keep track of recursion
@@ -68,10 +66,9 @@ function trilog(z::Number;
 end
 
 """
-    tetralog()
+    tetralog(z)
 
-    Essential just an alias
-
+    Just alias for the polylogarith with s=4
 """
 function tetralog(z::Number;
                 level=1, # keep track of recursion

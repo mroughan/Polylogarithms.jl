@@ -279,7 +279,10 @@ function polylog_root_old(s::Number, z::Number;
 end
 
 # calculate using the m-th root formula, summation order reversal in series 2
-#   presuming s isn't near integer values ... 
+#   presuming s isn't near integer values ...
+#
+# also note that at somewhere around 1.0e62, we end up with m=~69, and things start breaking down
+#  
 function polylog_root(s::Number, z::Number;
                       level=0, # keep track of recursion
                       accuracy::Float64=default_accuracy,
