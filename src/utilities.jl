@@ -1,11 +1,13 @@
 import Base: parse
 
 """
+ parse(::Type{Complex{T}}, s::AbstractString) where {T<:Real}
+
  Parse complex numbers.
 
- This code doesn't deal with all possible forms of complex numbers, just those output by Mathematica
+  + This code doesn't deal with all possible forms of complex numbers, just those output by Mathematica
 
-    But, latest version of Mathematica seems to have gone over to a more standard form
+  + But, latest version of Mathematica seems to have gone over to a more standard form, so this has been modded
 
 ## Arguments
 * `::Type{Complex{T}}`: the type to parse to, where T is a Real number type
@@ -14,7 +16,7 @@ import Base: parse
 ## Examples
 ```jldoctest; setup = :(using Polylogarithms)
 julia> parse( Complex{Float64}, "1.2 - 3.1*I")
-1.2 + 3.1im
+1.2 - 3.1im
 ```
 """
 function parse(::Type{Complex{T}}, s::AbstractString) where {T<:Real}
@@ -42,25 +44,12 @@ end
 
 
 
+#  Parse rational numbers.
+#     From https://github.com/JuliaLang/julia/issues/18328
 # drop the next bit as it now seems to be included in Julia's Base
 #    see https://github.com/JuliaLang/julia/pull/44550
 #    From Jun 17, 2022
 #    presuming from version at least v1.10 (the LTS version after this date)
-# 
-# """
-#  Parse rational numbers.
-#     From https://github.com/JuliaLang/julia/issues/18328
-
-# ## Arguments
-# * `::Type{Rational{T}}`: the type to parse to, where T is an Integer number type
-# * `s::AbstractString`: the string to parse
-
-# ## Examples
-# ```jldoctest; setup = :(using Polylogarithms)
-# julia> parse( Rational{Int64}, "1 / 2")
-# 1//2
-# ```
-# """
 # function parse(::Type{Rational{T}}, x::AbstractString) where {T<:Integer}
 #     list = split(x, '/', keepempty=false)
 #     if length(list) == 1

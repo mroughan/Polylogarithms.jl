@@ -99,7 +99,7 @@ There are additional keywords, but these are currently intended for testing not 
 ## Examples
 ```jldoctest; setup = :(using Polylogarithms)
 julia> polylog(0.35, 0.2, Diagnostics() )
-(0.23803890574407033, 17, 1)
+(0.23803890574407033, 17, 1, 0)
 ```
 """
 function polylog(s::Number, z::Number, ::Diagnostics;
@@ -679,7 +679,7 @@ function polylog_asympt_series_1(s::Number, z::Number;
     return (total, k, series, max_recursion)
 end
 
-
+ 
 # ##################################################
     
 # # Special case s=integer for use in testing etc. 

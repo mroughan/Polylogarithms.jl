@@ -5,8 +5,7 @@ DocMeta.setdocmeta!(Polylogarithms, :DocTestSetup, :(using Polylogarithms); recu
 
 makedocs(;
     modules=[Polylogarithms],
-    authors="Matthew Roughan <matthew.roughan@adelaide.edu.au> and contributors",
-    repo="https://github.com/mroughan/Polylogarithms.jl/blob/{commit}{path}#L{line}",
+    authors="Matthew Roughan <matthew.roughan@adelaide.edu.au>",
     sitename="Polylogarithms.jl",
     format=Documenter.HTML(;
         prettyurls=get(ENV, "CI", "false") == "true",

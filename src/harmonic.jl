@@ -42,7 +42,7 @@ end
 ## Examples
 ```jldoctest; setup = :(using Polylogarithms)
 julia> harmonic(2.0)
-1.5000000000000016
+1.5
 ```
 """
 function harmonic(x::ComplexOrReal{Float64})
@@ -101,7 +101,7 @@ end
 ## Examples
 ```jldoctest; setup = :(using Polylogarithms)
 julia> harmonic(2,1)
-1.5000000000000002
+1.4999999999999998
 ```
 """
 function harmonic(n::Integer, r::Integer)
