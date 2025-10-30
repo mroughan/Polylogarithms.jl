@@ -1,14 +1,16 @@
-Major changes from v0.01 to v0.02
+Major changes from v0.1.x to v0.2.0
 
 1. Added memoization to avoid repeated calling of zeta fn for same
    arguments (could add this for some other functions, inc. the polylog itself)
 
 2. Added m-th root formula to avoid deep recursion and improve
-   accuracy in the region for large real s and very large z
-     - several implementations here
-            - direct
-	    - reordered sum
-   also checked asymptotic formula again, with predictable poor
+   accuracy in the region for large real s and very large z. There are
+   two implementations:
+     
+      - direct
+      - reordered sum
+
+   Also checked asymptotic formula again, with predictable poor
    accuracy.
 
 3. Changed output of internal functions to provide better information
@@ -47,9 +49,3 @@ Major changes from v0.01 to v0.02
    + First 79 Stieltjes constants (instead of 10)
    + First 60 Bernoulli numbers (instead of 35)
    
-
-
-
-
-
-
