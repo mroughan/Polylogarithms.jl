@@ -68,7 +68,7 @@ function bernoulli(n::Integer, x::Real)
         for k = 0:n
             k = Int64(k)
             total += binomial(n, k) *  bernoulli(n-k) * x^k
-            # this will overflow for large n and k, but that migth be avoidable if we were more clever?
+            # this will overflow for large n and k, but that might be avoidable if we were more clever?
         end
         return total
     else
