@@ -83,8 +83,8 @@ function harmonic(n::Integer, r::Real)
         total +=  1.0 / k^r
     end
     return total
-end
-
+en
+d
 
 """
     harmonic(n::Integer,r::Integer)
@@ -92,8 +92,8 @@ end
  Calculates generalized harmonic numbers
    e.g., see [http://mathworld.wolfram.com/HarmonicNumber.html](http://mathworld.wolfram.com/HarmonicNumber.html)
  using a better approach which works when both inputs are integers
- [https://carma.newcastle.edu.au/resources/jon/Preprints/Papers/Published-InPress/Oscillatory%20(Tapas%20II)/Papers/coffey-zeta.pdf](https://carma.newcastle.edu.au/resources/jon/Preprints/Papers/Published-InPress/Oscillatory%20(Tapas%20II)/Papers/coffey-zeta.pdf), p.341
- 
+   https://carmamaths.org/resources/jon/Preprints/Papers/Published-InPress/Oscillatory%20(Tapas%20II)/Papers/coffey-zeta.pdf
+
 ## Arguments
 * ``n`` `::Integer`: non-negative index 1 of the Harmonic number to calculate
 * ``r`` `::Integer`: index 2 of the Harmonic number to calculate
