@@ -50,8 +50,6 @@ It's goal is an relative error bound 10^{-12}.
 * ``s`` `::Complex`: the 'fractional' parameter
 * ``z`` `::Complex`: the point at which to calculate it
 
-There are additional keywords, but these are currently intended for testing not use.
-
 ## Output Arguments
 * ``Li_s(z)``: The result
 
@@ -731,3 +729,115 @@ end
 #     end
 #     return (total,k)
 # end
+ 
+
+##################
+### derivatives
+##################
+
+
+
+"""
+    polylog_dz(s, z)
+
+Derivative of the Polylogarithm function ``{Li}_s(z)`` with respect to z.
+
+Note that (see eg https://en.wikipedia.org/wiki/Polylogarithm)
+`` \frac{d}{dz} Li_s(z) = Li_{s-1}(z)/z ``
+   
+## Input Arguments
+* ``s`` `::Complex`: the 'fractional' parameter
+* ``z`` `::Complex`: the point at which to calculate it
+
+## Output Arguments
+* ``\frac{d}{dz} Li_s(z)``: The result
+
+## Examples
+```jldoctest; setup = :(using Polylogarithms)
+julia> polylog_dz(0.35, 0.2)
+
+```
+"""
+function polylog_dz(s::Number, z::Number;
+                    level=1, # keep track of recursion
+                    accuracy::Float64=default_accuracy,
+                    min_iterations::Integer=0,
+                    max_iterations::Integer=default_max_iterations)
+    return polylog(s-1, z; level=level, accuracy=accuracy, min_iterations=min_iterations, max_iterations=max_iterations) / z
+end
+
+
+
+"""
+    polylog_ds(s, z)
+
+Derivative of the Polylogarithm function ``{Li}_s(z)`` with respect to s.
+
+Note that this is not replicating all the work above (yet), and only doing the
+simple series version which is valid only for |z| < 1
+   
+## Input Arguments
+* ``s`` `::Complex`: the 'fractional' parameter
+* ``z`` `::Complex`: the point at which to calculate it
+
+## Output Arguments
+* ``\frac{d}{ds} Li_s(z)``: The result
+
+## Examples
+```jldoctest; setup = :(using Polylogarithms)
+julia> polylog_ds(0.35, 0.2)
+
+```
+"""
+function polylog_ds(s::Number, z::Number;
+                    level=1, # keep track of recursion
+                    accuracy::Float64=default_accuracy,
+                    min_iterations::Integer=0,
+                    max_iterations::Integer=default_max_iterations)
+    
+    if abs(z) >= 1.0
+        throw(DomainError(z, "At present, this only works for |z|<1"))
+    end
+    return polylog_ds_series_1(s, z;
+                               accuracy=accuracy,
+                               min_iterations=min_iterations,
+                               max_iterations=max_iterations)[1]
+end
+
+# calculate using direct definition
+function polylog_ds_series_1(s::Number, z::Number;
+                             accuracy::Float64=default_accuracy,
+                             min_iterations::Integer=0,
+                             max_iterations::Integer=100000000) # temporarily have made this large because we are pushing towards z->1.0
+    total = 0.0
+    converged = false
+    k = 2
+    a = z^k * log(k) / k^s
+    if real(s) < 0
+        min_iterations = ceil( real(s) / log(abs(z)) )
+    end
+    while k<=max_iterations && ~converged
+        total -= a
+        k = k+1
+        a *= z * ( (k-1)/(k) )^s * log(k)/log(k-1)
+        # println("   total = $total")
+        if k > min_iterations && abs(a)/abs(total) < 0.5*accuracy
+            converged = true
+        end
+    end
+
+    # k = 2
+    # while k<=max_iterations && ~converged
+    #     a = z^k * log(k) / k^s
+    #     total -= a
+    #     k = k+1
+    #     # println("   total = $total")
+    #     if k > min_iterations && abs(a)/abs(total) < 0.5*accuracy
+    #         converged = true
+    #     end
+    # end
+    
+    series = 101 # derivative series 1
+    max_recursion = 0
+    return (total, k, series, max_recursion)
+end

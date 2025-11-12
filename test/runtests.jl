@@ -5,4 +5,4 @@ include("stieltjes_test.jl")
 include("gamma_test.jl")
 include("polylog_test1.jl")
 include("polylog_test2.jl")
-
+include("polylog_derivative_test.jl")

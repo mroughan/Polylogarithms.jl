@@ -9,7 +9,8 @@ import SpecialFunctions
 # not using MPFR for the moment
 # using Base.MPFR: ROUNDING_MODE, big_ln2
 
-export polylog, bernoulli, euler, harmonic, stieltjes, dirichlet_beta
+export polylog, polylog_ds, polylog_dz, polylog_ds_series_1
+export bernoulli, euler, harmonic, stieltjes, dirichlet_beta
 export rogers, spence, dilog, trilog, tetralog
 export Diagnostics
 export parse
@@ -29,6 +30,7 @@ include("utilities.jl")
 
 # Constants
 include("constants.jl")
+export A
 
 # Series
 include("stieltjes.jl")

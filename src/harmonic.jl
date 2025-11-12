@@ -83,8 +83,7 @@ function harmonic(n::Integer, r::Real)
         total +=  1.0 / k^r
     end
     return total
-en
-d
+end
 
 """
     harmonic(n::Integer,r::Integer)

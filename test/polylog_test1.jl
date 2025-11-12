@@ -375,3 +375,17 @@ Z = [3.0 + 0.4im, -3.0 + 0.4im, 3.0 - 0.4im, -3.0 + -0.4im, 2.0 + 0.1im, -5.0 + 
     end
                    
 end
+
+# @testset "Polylogarithm derivatives WRT to s" begin
+    # these are a bit made up, as I didn't find to manym but note that
+    #    Li_s(1) = ζ(s)     # Riemann zeta function, for Re(s)>1
+    # and er know derivatives of Riemann zeta for some cases
+    #     https://mathworld.wolfram.com/RiemannZetaFunction.html
+    #         z'(2) = (π^2 / 6) * ( γ + log(2*π) - 12 * log(A) ) ~ -0.93754825431...
+                                   
+    # z = 1.0
+    # s = 2.0
+    # polylog(s, z) ≈ zeta(s)
+    # polylog_ds(s, 0.999999999999999) ≈ (π^2 / 6) * ( γ + log(2*π) - 12 * log(A) ) # NB series doeesn't converge for z=1.0 exactly
+    
+# end
