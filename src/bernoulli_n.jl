@@ -21,11 +21,12 @@
 
  The type of the output is Rational{typeof(n)}, so we can only calculate number such that this would not cause
  round-off, i.e,
-| typeof(n) | max_n |
-|----------|--------|
-| Int32    | 23     |
-| Int64    | 35     |
-| Int128   | 59     |
+
+| typeof(n) | max_n  |
+|-----------|--------|
+| Int32     | 23     |
+| Int64     | 35     |
+| Int128    | 59     |
 
  Beyond this, its probably best to compute the real approximation
  using the Bernoulli polynomial, i.e., `bernoulli(n,0.0)`. 
