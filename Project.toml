@@ -1,7 +1,7 @@
 name = "Polylogarithms"
 uuid = "43cc4a2f-1a2b-4fbb-87e3-95c794af13de"
 authors = ["Matthew Roughan <matthew.roughan@adelaide.edu.au>"]
-version = "0.2.2"
+version = "0.2.0"
 
 [deps]
 IrrationalConstants = "92d709cd-6900-40b7-9082-c6be49f344b6"
