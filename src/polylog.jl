@@ -752,7 +752,7 @@ Note that (see eg https://en.wikipedia.org/wiki/Polylogarithm)
 * ``z`` `::Complex`: the point at which to calculate it
 
 ## Output Arguments
-* ``\\frac{d}{dz} Li_s(z)``: The result
+* ``\\displaystyle \\frac{d}{dz} Li_s(z)``
 
 ## Examples
 ```jldoctest; setup = :(using Polylogarithms)
@@ -783,7 +783,7 @@ simple series version which is valid only for |z| < 1
 * ``z`` `::Complex`: the point at which to calculate it
 
 ## Output Arguments
-* ``\\frac{d}{ds} Li_s(z)``: The result
+* ``\\displaystyle \\frac{d}{ds} Li_s(z)``
 
 ## Examples
 ```jldoctest; setup = :(using Polylogarithms)

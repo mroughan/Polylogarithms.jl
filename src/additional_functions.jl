@@ -28,7 +28,7 @@ end
 """
     spence(z)
 
-An alias for the dilogarith (polylog with s=2), i.e., ``{Li}_2(z)`
+An alias for the dilogarith (polylog with s=2), i.e., ``{Li}_2(z)``
 """
 function spence(z::Number;
                 level=1, # keep track of recursion
@@ -42,7 +42,7 @@ end
 """
     dilog(z)
 
-An alias for the polylogarith with s=2, i.e., ``{Li}_2(z)`
+An alias for the polylogarith with s=2, i.e., ``{Li}_2(z)``
 """
 function dilog(z::Number;
                 level=1, # keep track of recursion
@@ -55,7 +55,7 @@ end
 """
     trilog(z)
 
-An alias for the polylogarithm with s=3, i.e., ``{Li}_3(z)`
+An alias for the polylogarithm with s=3, i.e., ``{Li}_3(z)``
 """
 function trilog(z::Number;
                 level=1, # keep track of recursion
@@ -68,7 +68,7 @@ end
 """
     tetralog(z)
 
-An alias for the polylogarith with s=4, i.e., ``{Li}_4(z)`
+An alias for the polylogarith with s=4, i.e., ``{Li}_4(z)``
 """
 function tetralog(z::Number;
                   level=1, # keep track of recursion
