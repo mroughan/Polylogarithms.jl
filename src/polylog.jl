@@ -12,6 +12,16 @@ const CacheList = [ CacheZeta ]
 # could do the same for gamma (and loggamma, digamma, polygamma, ...) and  
 
 # we need to empty the cache before doing any timing tests
+"""
+    clearcache()
+
+Note that in this library the zeta function has been replaced by a wrapper that looks up (or stores) the value
+into a cache, so that we don't have to repeat zeta function calculations. This function clears the cache so that
+you can obtain accurate "first run" performance measurements. It should not be needed in day-to-day calculations unless
+it is used a great deal and the cache starts taking up too much memory. 
+
+See also `zeta(s, ::Memoization )`.
+"""
 function clearcache( ; to_clear = CacheList) 
     # can't empty ExistingSurreals, or it breaks things, and doesn't reduce costs much anyway
     for C in to_clear
@@ -21,6 +31,15 @@ function clearcache( ; to_clear = CacheList)
 end
 
 # replace zeta function with a version that uses the cache
+"""
+    zeta(s, ::Memoization )
+
+Note that in this library the zeta function has been replaced by a wrapper that looks up (or stores) the value
+into a cache, so that we don't have to repeat zeta function calculations. The traditional zeta function will 
+still work, but the code here uses this one, so performance results will be skewed if you don't use the cache correctly. 
+
+See also `clearcache()`.
+"""
 function zeta( s::Number, ::Memoization  )
     if haskey( CacheZeta, s )
         return CacheZeta[s]
@@ -39,7 +58,7 @@ end
 
 Calculates the Polylogarithm function ``{Li}_s(z)`` defined by
     
-``{Li}_s = \\sum_{n=1}^{\\infty} \\frac{z^n}{n^s},``
+``{Li}_s = \\displaystyle  \\sum_{n=1}^{\\infty} \\frac{z^n}{n^s},``
 
 or by analytic expension to the complex plane. 
 
@@ -74,7 +93,7 @@ end
 
 Calculates the Polylogarithm function ``{Li}_s(z)`` defined by
     
-``{Li}_s = \\sum_{n=1}^{\\infty} \\frac{z^n}{n^s},``
+``{Li}_s = \\displaystyle  \\sum_{n=1}^{\\infty} \\frac{z^n}{n^s},``
 
 or by analytic expension to the complex plane. 
 
