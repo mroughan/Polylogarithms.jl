@@ -2,3 +2,7 @@
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
 Polylogarithms = "43cc4a2f-1a2b-4fbb-87e3-95c794af13de"
 SpecialFunctions = "276daf66-3868-5448-9aa4-cd146d93841b"
+OpenSSL_jll = "B6327FB3-4621-5070-AFCD-9272B548F590"
+
+[compat]
+OpenSSL_jll = "3.0"
