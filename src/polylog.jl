@@ -63,7 +63,7 @@ Calculates the Polylogarithm function ``{Li}_s(z)`` defined by
 or by analytic expension to the complex plane. 
 
 It uses double precision complex numbers (not arbitrary precision).
-It's goal is an relative error bound 10^{-12}.
+It's goal is an relative error bound ``10^{-12}`` though there is a keyword `accuracy` that allows you to change this.
  
 ## Input Arguments
 * ``s`` `::Complex`: the 'fractional' parameter
@@ -89,7 +89,7 @@ end
 
 # this is the main version, but outputs diagnosstics, which I guess most people won't want
 """
-    polylog(s, z, Diagnostics())
+    polylog(s, z, Diagnostics()) 
 
 Calculates the Polylogarithm function ``{Li}_s(z)`` defined by
     
@@ -98,9 +98,9 @@ Calculates the Polylogarithm function ``{Li}_s(z)`` defined by
 or by analytic expension to the complex plane. 
 
 It uses double precision complex numbers (not arbitrary precision).
-It's goal is an relative error bound 10^{-12}.
+It's goal is an relative error bound ``10^{-12}`` though there is a keyword `accuracy` that allows you to change this.
  
-This version outputs some additional diagnostic information that is useful in debugging, but unlikely to be useful in everyday calculations. 
+This version outputs some additional diagnostic information that is useful in debugging, but unlikely to be useful in everyday calculations.  
 
 ## Input Arguments
 * ``s::`` `Complex`: the 'fractional' parameter
