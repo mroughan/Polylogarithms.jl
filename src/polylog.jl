@@ -744,7 +744,7 @@ end
 
 Derivative of the Polylogarithm function ``{Li}_s(z)`` with respect to z.
 
-Note that (see eg https://en.wikipedia.org/wiki/Polylogarithm)
+Note that (see eg [https://en.wikipedia.org/wiki/Polylogarithm](https://en.wikipedia.org/wiki/Polylogarithm))
 `` \\frac{d}{dz} Li_s(z) = Li_{s-1}(z)/z ``
    
 ## Input Arguments
@@ -776,7 +776,7 @@ end
 Derivative of the Polylogarithm function ``{Li}_s(z)`` with respect to s.
 
 Note that this is not replicating all the work above (yet), and only doing the
-simple series version which is valid only for |z| < 1
+simple series version which is valid only for |z| < 1.
    
 ## Input Arguments
 * ``s`` `::Complex`: the 'fractional' parameter
