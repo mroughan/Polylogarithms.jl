@@ -43,7 +43,7 @@ Calculates the Polylogarithm function ``{Li}_s(z)`` defined by
 
 or by analytic expension to the complex plane. 
 
-It double precision complex numbers (not arbitrary precision).
+It uses double precision complex numbers (not arbitrary precision).
 It's goal is an relative error bound 10^{-12}.
  
 ## Input Arguments
@@ -78,9 +78,11 @@ Calculates the Polylogarithm function ``{Li}_s(z)`` defined by
 
 or by analytic expension to the complex plane. 
 
-It double precision complex numbers (not arbitrary precision).
+It uses double precision complex numbers (not arbitrary precision).
 It's goal is an relative error bound 10^{-12}.
  
+This version outputs some additional diagnostic information that is useful in debugging, but unlikely to be useful in everyday calculations. 
+
 ## Input Arguments
 * ``s::`` `Complex`: the 'fractional' parameter
 * ``z`` `::Complex`: the point at which to calculate it
@@ -90,7 +92,7 @@ It's goal is an relative error bound 10^{-12}.
 * ``Li_s(z)``: The result
 * ``n``:       The number of elements used in each series
 * `series`:    The series used to compute results (note this will be a tree when recursion is used
-* `max_recursion`:  The maximum depth of the recursion
+* `max_recursion`:  The maximum depth of recursion used (0 if there is not recursion)
 
 ## Examples
 ```jldoctest; setup = :(using Polylogarithms)
@@ -743,14 +745,14 @@ end
 Derivative of the Polylogarithm function ``{Li}_s(z)`` with respect to z.
 
 Note that (see eg https://en.wikipedia.org/wiki/Polylogarithm)
-`` \frac{d}{dz} Li_s(z) = Li_{s-1}(z)/z ``
+`` \\frac{d}{dz} Li_s(z) = Li_{s-1}(z)/z ``
    
 ## Input Arguments
 * ``s`` `::Complex`: the 'fractional' parameter
 * ``z`` `::Complex`: the point at which to calculate it
 
 ## Output Arguments
-* ``\frac{d}{dz} Li_s(z)``: The result
+* ``\\frac{d}{dz} Li_s(z)``: The result
 
 ## Examples
 ```jldoctest; setup = :(using Polylogarithms)
@@ -781,7 +783,7 @@ simple series version which is valid only for |z| < 1
 * ``z`` `::Complex`: the point at which to calculate it
 
 ## Output Arguments
-* ``\frac{d}{ds} Li_s(z)``: The result
+* ``\\frac{d}{ds} Li_s(z)``: The result
 
 ## Examples
 ```jldoctest; setup = :(using Polylogarithms)

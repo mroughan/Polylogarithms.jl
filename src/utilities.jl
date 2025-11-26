@@ -1,9 +1,9 @@
 import Base: parse
 
 """
- parse(::Type{Complex{T}}, s::AbstractString) where {T<:Real}
+   parse(::Type{Complex{T}}, s::AbstractString) where {T<:Real}
 
- Parse complex numbers.
+Parse complex numbers.
 
   + This code doesn't deal with all possible forms of complex numbers, just those output by Mathematica
 
