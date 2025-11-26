@@ -60,7 +60,7 @@ Calculates the Polylogarithm function ``{Li}_s(z)`` defined by
     
 ``{Li}_s = \\displaystyle  \\sum_{n=1}^{\\infty} \\frac{z^n}{n^s},``
 
-or by analytic expension to the complex plane. 
+or by analytic extension to the complex plane. 
 
 It uses double precision complex numbers (not arbitrary precision).
 It's goal is an relative error bound ``10^{-12}`` though there is a keyword `accuracy` that allows you to change this.
@@ -95,7 +95,7 @@ Calculates the Polylogarithm function ``{Li}_s(z)`` defined by
     
 ``{Li}_s = \\displaystyle  \\sum_{n=1}^{\\infty} \\frac{z^n}{n^s},``
 
-or by analytic expension to the complex plane. 
+or by analytic extension to the complex plane. 
 
 It uses double precision complex numbers (not arbitrary precision).
 It's goal is an relative error bound ``10^{-12}`` though there is a keyword `accuracy` that allows you to change this.
