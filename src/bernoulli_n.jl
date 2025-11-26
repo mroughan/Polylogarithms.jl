@@ -28,12 +28,12 @@
 | Int64     | 35     |
 | Int128    | 59     |
 
- Beyond this, its probably best to compute the real approximation
+ Beyond this, it's probably best to compute the real approximation
  using the Bernoulli polynomial, i.e., `bernoulli(n,0.0)`. 
 
  Harvey has an algorithm used to get n=100,000,000 but this seems overkill for what I need. 
    + Harvey, David (2010), "A multimodular algorithm for computing Bernoulli numbers", Math. Comput., 79 (272): 2361–2370, arXiv:0807.1347, doi:10.1090/S0025-5718-2010-02367-1, S2CID 11329343, Zbl 1215.11016
-   + Apparently implemented in SageMath (since 3.1)
+   + Apparently implemented in SageMath (since version 3.1)
 
  But odd values for ``n>1`` are all zero, so they are easy.
 
@@ -127,8 +127,8 @@ The return type for this is always BigInt
 
 ## Examples
 ```jldoctest; setup = :(using Polylogarithms)
-julia> bernoulli(6)
-1//42
+julia> euler(40)
+14851150718114980017877156781405826684425
 ```
 
 """
