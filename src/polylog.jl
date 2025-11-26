@@ -755,7 +755,7 @@ Note that (see eg https://en.wikipedia.org/wiki/Polylogarithm)
 ## Examples
 ```jldoctest; setup = :(using Polylogarithms)
 julia> polylog_dz(0.35, 0.2)
-
+1.421095587670745
 ```
 """
 function polylog_dz(s::Number, z::Number;
@@ -786,7 +786,7 @@ simple series version which is valid only for |z| < 1
 ## Examples
 ```jldoctest; setup = :(using Polylogarithms)
 julia> polylog_ds(0.35, 0.2)
-
+-0.02947228342617501
 ```
 """
 function polylog_ds(s::Number, z::Number;
