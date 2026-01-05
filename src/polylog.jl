@@ -110,7 +110,7 @@ This version outputs some additional diagnostic information that is useful in de
 ## Output Arguments
 * ``Li_s(z)``: The result
 * ``n``:       The number of elements used in each series
-* `series`:    The series used to compute results (note this will be a tree when recursion is used
+* `series`:    The series used to compute results (note this will be a tree when recursion is used)
 * `max_recursion`:  The maximum depth of recursion used (0 if there is not recursion)
 
 ## Examples
@@ -822,43 +822,121 @@ function polylog_ds(s::Number, z::Number;
     return polylog_ds_series_1(s, z;
                                accuracy=accuracy,
                                min_iterations=min_iterations,
-                               max_iterations=max_iterations)[1]
+                               max_iterations=max_iterations)
 end
 
+const max_log_ratio = default_max_iterations + 1
+const log_ratios = log.(1:max_log_ratio) ./ log.(0:max_log_ratio-1)
+    
 # calculate using direct definition
 function polylog_ds_series_1(s::Number, z::Number;
                              accuracy::Float64=default_accuracy,
                              min_iterations::Integer=0,
-                             max_iterations::Integer=100000000) # temporarily have made this large because we are pushing towards z->1.0
-    total = 0.0
-    converged = false
-    k = 2
-    a = z^k * log(k) / k^s
-    if real(s) < 0
-        min_iterations = ceil( real(s) / log(abs(z)) )
+                             max_iterations::Integer=default_max_iterations ) 
+
+    #
+    if isreal(s)
+        s = convert(Float64, s)
+    else
+        s = convert(Complex{Float64}, s)
     end
+    if isreal(z)
+        z = convert(Float64, z)
+    else
+        z = convert(Complex{Float64}, z)
+    end
+    
+    # first work out where the maximum absolute value of the sequence is
+    k = 2
+    a_old = 0.0
+    a = z^k * log(k) / k^s
+    reached_min_iterations = false
+    while k<=max_iterations/2 && ~reached_min_iterations
+        k += 1
+        a_old = a
+        a *= z * ( (k-1)/(k) )^s * log_ratios[k]
+        if abs(a_old) > abs(a)
+            # check that the sequence is decreasing
+            reached_min_iterations = true
+        end
+    end
+
+    # now add the terms in decreasing order in both directions
+    k_start = k - 1
+    the_total = 0.0
+#    if k_start > 2
+    if k_start > 2
+        a_start = a_old
+        the_total = -a_start # start the sum from the largest value and move outwards
+        a_down = a_start
+        a_up   = a_start
+        # println( "  (0) k=$k_start, a=$a_start  " )
+        for k = 1 : k_start-2
+            k_down = k_start - k
+            a_down /= z * ( (k_down)/(k_down+1) )^s * log_ratios[k_down+1]
+            
+            k_up = k_start + k
+            a_up   *= z * ( (k_up-1)/(k_up) )^s * log_ratios[k_up]
+            
+            # println( "  (1) dk=$k, k_up=$k_up, a_up=$a_up, k_down=$k_down, a_down=$a_down  " )
+            
+            the_total -= a_up 
+            the_total -= a_down
+        end
+    else
+        k = 2
+        a_old = 0.0
+        a_up = z^k * log(k) / k^s
+        the_total -= a_up
+    end
+    
+    # println( "      the_total=$the_total " )
+    
+     # now add additional terms in the sequence
+    converged = false
+    a = a_up
+    k = 2*k_start - 2 
     while k<=max_iterations && ~converged
-        total -= a
-        k = k+1
-        a *= z * ( (k-1)/(k) )^s * log(k)/log(k-1)
-        # println("   total = $total")
-        if k > min_iterations && abs(a)/abs(total) < 0.5*accuracy
+        k += 1
+        a_old = a
+        a *= z * ( (k-1)/(k) )^s * log_ratios[k]
+        the_total -= a
+        
+        # println( "  (2) k=$k, a=$a " )
+        
+        if abs(a)/abs(the_total) < 0.25*accuracy # 0.25, because we want to go one step further
             converged = true
         end
     end
 
+    # println( "      the_total=$the_total " )
+    
+    
+    # total = 0.0
+    # converged = false
     # k = 2
+    # a = z^k * log(k) / k^s
+    # reached_min_iterations = false
     # while k<=max_iterations && ~converged
-    #     a = z^k * log(k) / k^s
     #     total -= a
+    #     println( "  (3) k=$k, a=$a " )
+
     #     k = k+1
+    #     a_old = a
+    #     a *= z * ( (k-1)/(k) )^s * log_ratios[k]
     #     # println("   total = $total")
-    #     if k > min_iterations && abs(a)/abs(total) < 0.5*accuracy
-    #         converged = true
+    #     if abs(a_old) > abs(a)
+    #         # check that the sequence is decreasing
+    #         reached_min_iterations = true
     #     end
+    #     if reached_min_iterations &&
+    #         abs(a)/abs(total) < 0.5*accuracy 
+    #         converged = true
+    #     end 
     # end
+
     
     series = 101 # derivative series 1
     max_recursion = 0
-    return (total, k, series, max_recursion)
+    return (the_total, k, series, max_recursion)
 end

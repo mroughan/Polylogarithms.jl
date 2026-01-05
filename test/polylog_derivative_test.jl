@@ -26,8 +26,8 @@ L = Symbol("dLi_s/dz")
             println( abs(rel_error1[i]) )
         end
     end
-    @test no_failed1 < 10# NB don't expect all these to pass, just most
-end
+    @test no_failed1 < 10 # NB don't expect all these to pass, just most
+end 
 
 L = Symbol("dLi_s/ds")
 @testset "Polylogarithm derivative with respect to s on random test data (validated using Mathematica)" begin
@@ -47,14 +47,23 @@ L = Symbol("dLi_s/ds")
     rel_error2 = zeros(Complex{Float64}, m)
     
     for i=1:m
-        rel_error2[i] =  ( polylog_ds(s[i],z[i]) - dLids[i] )./ dLids[i]
+        output = polylog_ds(s[i],z[i])
+        rel_error2[i] =  (output[1]  - dLids[i] )./ dLids[i]
         if abs(rel_error2[i]) > accuracy_goal1
             no_failed2 += 1
-            print("   error warning: s=$(s[i]), z=$(z[i]), relative error = ")
+            print("   error warning: s=$(s[i]), |z|=$(abs(z[i])), k=$(output[2]), relative error = ")
             println( abs(rel_error2[i]) )
         end
     end
     @test no_failed2 < 180 # NB don't expect all these to pass, just most, but derivatives are harder
-    @test maximum(abs.(rel_error2)) < 1.0e-9
+    max_error2 = maximum(abs.(rel_error2))
+    @test max_error2 < 1.0e-9
+    println("   maximum error = $max_error2  and no_failed = $no_failed2 ")
+
+# scatter( -real.(s), log10.( abs.(rel_error2) ) ; label="", xlabel="-real(s)", ylabel="log10(abs(rel error))", ylim = (-13, -9), markersize =4, markeralpha=0.3)
+
+# scatter( abs.(z), log10.( abs.(rel_error2) ) ; label="", xlabel="-real(s)", ylabel="log10(abs(rel error))", ylim = (-13, -9), markersize =4, markeralpha=0.3)
+
 end
 
+0

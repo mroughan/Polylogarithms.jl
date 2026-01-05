@@ -11,7 +11,8 @@ The main tests are all run by `runtests.jl` including
 + `polylog_test1.jl' -- test functionality and identities for the polylogarithm function
 + `polylog_test1.jl' -- test the polylogarithm on data (not all tests will pass perfectly)
 + `stieltjes_test.jl` -- test the Stieltjes constants
++ `polylog_derivative_test.jl` -- test the derivatives of the polylog function
 
-Many of these will use reference data from `..data/`
+Many of these will use reference data from `../data/`
 
 
