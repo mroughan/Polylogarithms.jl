@@ -12,6 +12,7 @@ import SpecialFunctions
 export polylog, polylog_ds, polylog_dz, polylog_ds_series_1
 export bernoulli, euler, harmonic, stieltjes, dirichlet_beta
 export rogers, spence, dilog, trilog, tetralog
+export zeta_derivative, zeta_series_2, zeta_reflection2, zeta_series_4, zeta_d_near_zero, test_d_near_zeros
 export Diagnostics
 export parse
 export Memoization, CacheZeta, clearcache
@@ -41,6 +42,7 @@ include("harmonic.jl")
 # Functions
 include("beta.jl")
 include("bernoulli_poly.jl")
+include("zeta_derivative.jl")
 include("polylog.jl")
 include("additional_functions.jl")
 

@@ -22,7 +22,7 @@ L = Symbol("dLi_s/dz")
         rel_error1[i] =  ( polylog_dz(s[i],z[i]) - dLidz[i] )./ dLidz[i]
         if abs(rel_error1[i]) > accuracy_goal1
             no_failed1 += 1
-            print("   error warning: s=$(s[i]), z=$(z[i]), relative error = ")
+            print("   accuracy warning: s=$(s[i]), z=$(z[i]), relative error = ")
             println( abs(rel_error1[i]) )
         end
     end
@@ -51,9 +51,9 @@ L = Symbol("dLi_s/ds")
         rel_error2[i] =  (output[1]  - dLids[i] )./ dLids[i]
         if abs(rel_error2[i]) > accuracy_goal1
             no_failed2 += 1
-            print("   error warning: s=$(s[i]), |z|=$(abs(z[i])), k=$(output[2]), relative error = ")
+            print("   accuracy warning: s=$(s[i]), |z|=$(abs(z[i])), k=$(output[2]), relative error = ")
             println( abs(rel_error2[i]) )
-        end
+        end 
     end
     @test no_failed2 < 180 # NB don't expect all these to pass, just most, but derivatives are harder
     max_error2 = maximum(abs.(rel_error2))

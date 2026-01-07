@@ -22,11 +22,11 @@ L = Symbol("Li_s(z)")
             rel_error =  ( polylog(s[i],z[i]) - Li[i] )./ Li[i]
             if abs(rel_error) > accuracy_goal1
                 no_failed += 1
-                print("   error warning: C=$C, s=$(s[i]), z=$(z[i]), relative error = ")
+                print("   accuracy warning: C=$C, s=$(s[i]), z=$(z[i]), relative error = ")
                 println( abs(rel_error) )
             end
         end
-        @test no_failed < 10# NB don't expect all these to pass, just most
+        @test no_failed < 10 # NB don't expect all these to pass, just most
     end
 end
 

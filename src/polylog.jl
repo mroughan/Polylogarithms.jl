@@ -815,7 +815,18 @@ function polylog_ds(s::Number, z::Number;
                     accuracy::Float64=default_accuracy,
                     min_iterations::Integer=0,
                     max_iterations::Integer=default_max_iterations)
-    
+    #
+    if isreal(s)
+        s = convert(Float64, s)
+    else
+        s = convert(Complex{Float64}, s)
+    end
+    if isreal(z)
+        z = convert(Float64, z)
+    else
+        z = convert(Complex{Float64}, z)
+    end
+       
     if abs(z) >= 1.0
         throw(DomainError(z, "At present, this only works for |z|<1"))
     end
@@ -834,18 +845,6 @@ function polylog_ds_series_1(s::Number, z::Number;
                              min_iterations::Integer=0,
                              max_iterations::Integer=default_max_iterations ) 
 
-    #
-    if isreal(s)
-        s = convert(Float64, s)
-    else
-        s = convert(Complex{Float64}, s)
-    end
-    if isreal(z)
-        z = convert(Float64, z)
-    else
-        z = convert(Complex{Float64}, z)
-    end
-    
     # first work out where the maximum absolute value of the sequence is
     k = 2
     a_old = 0.0
@@ -939,4 +938,15 @@ function polylog_ds_series_1(s::Number, z::Number;
     series = 101 # derivative series 1
     max_recursion = 0
     return (the_total, k, series, max_recursion)
+end
+    
+# calculate using expansion around z=1.0
+function polylog_ds_series_2(s::Number, z::Number;
+                             accuracy::Float64=default_accuracy,
+                             min_iterations::Integer=0,
+                             max_iterations::Integer=default_max_iterations ) 
+
+
+    
+
 end
