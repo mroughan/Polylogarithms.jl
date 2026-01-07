@@ -8,25 +8,22 @@ const log_ratios = log.(1:max_log_ratio) ./ log.(0:max_log_ratio-1)
 """
     zeta_derivative()
 
- created: 	Sun Jan  4 2026 
- email:   	matt@kanga2
- (c) Matt Roughan, 2026
-
  Calculates first derivative of the Riemann zeta function
 
 ## Arguments
 * `n::Integer`: the number of elements to compute.
-* `dim::Integer=1`: the dimensions along which to perform the computation.
+* `δ::Float64 = 0.2`: the point at which we swap to the Laurent series around s=1.0
+* `accuracy::Float64=1.0e-14`: intended accuracy, although this doesn't have as much affect here
 
-## LateX
-``\\alpha = \\beta``
+## Returns (a tuple)
+* Result
+* Number of terms used in series (or a diagnostic for non-series approaches)
 
 ## Examples
 ```jldoctest
-julia> a = [1 2; 3 4]
-2×2 Array{Int64,2}:
- 1  2
- 3  4
+julia> s = 0.5
+julia> zeta_derivative(s)
+(-3.9226461392091503, 19)
 ```
 """
 function zeta_derivative( s::Number;
