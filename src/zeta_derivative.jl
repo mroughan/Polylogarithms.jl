@@ -23,7 +23,7 @@ const log_ratios = log.(1:max_log_ratio) ./ log.(0:max_log_ratio-1)
 ## Examples
 ```jldoctest; setup = :(using Polylogarithms)
 julia> zeta_derivative(0.5)
-(-3.9226461392091503, 19)
+(-3.922646139209152, 20)
 ```
 """
 function zeta_derivative( s::Number;
