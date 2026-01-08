@@ -6,6 +6,5 @@ plots/
 docs/build/
 build/
 test/Old
-todo.txt
-notes.txt
+*txt
 Manifest.toml

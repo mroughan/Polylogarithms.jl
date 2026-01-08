@@ -31,17 +31,33 @@ occasional errors as large as 1.0e-11 have been seen.
  + `harmonic(n,r)` Provides the generalised Harmonic numbers
  
  + `stieltjes(n)` Provides the first 10 [Stieltjes
- constants](https://en.wikipedia.org/wiki/Stieltjes_constants) (see
- Abramowitz and Stegun, 23.2.5), also known as the generalized
- Euler-Mascheroni constants.
+    constants](https://en.wikipedia.org/wiki/Stieltjes_constants) (see
+    Abramowitz and Stegun, 23.2.5), also known as the generalized
+    Euler-Mascheroni constants.
  
- + `dirichlet_beta(z)` Provides the Dirichlet beta function
+ + `dirichlet_beta(z)` Provides the Dirichlet beta function (the eta
+    function is included in SpecialFunctions)
 
  + `rogers(z)` Rogers L-function
 
  + `spence(z)` and `dilog` -- aliases for `polylog(2, z)` 
 
  + `trilog(z)` and `tetralog` -- aliaes for  `polylog(3, z)` and `polylog(3, z)` 
+
+## Recent additions
+
+   Currently in the process of adding functions to calculate the
+   derivatives of the polylogarithm WRT to both z and s. Doing this
+   for a wide range of arguments requires derivatives of the Riemann
+   zeta function so this is also in the process of being added.
+   
+## Notes
+
+   There are few extra functions exported that are used as components
+   here. These are currently being used in testing, but ultimately
+   will taken out of the export list, so don't use these unless you
+   are clear about what you are doing.
+   
 
 # Examples
 

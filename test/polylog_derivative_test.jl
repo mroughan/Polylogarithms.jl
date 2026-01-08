@@ -51,7 +51,7 @@ L = Symbol("dLi_s/ds")
         rel_error2[i] =  (output[1]  - dLids[i] )./ dLids[i]
         if abs(rel_error2[i]) > accuracy_goal1
             no_failed2 += 1
-            print("   accuracy warning: s=$(s[i]), |z|=$(abs(z[i])), k=$(output[2]), relative error = ")
+            print("   accuracy warning: s=$(s[i]), z=$(z[i]), k=$(output[2]), series=$(output[3]), relative error = ")
             println( abs(rel_error2[i]) )
         end 
     end

@@ -210,7 +210,7 @@ Z = [3.0 + 0.4im, -3.0 + 0.4im, 3.0 - 0.4im, -3.0 + -0.4im, 2.0 + 0.1im, -5.0 + 
             @test polylog(3, im)           ≈ -(3/32)*zeta(3) + (pi^3/32) * im
             @test polylog(3, -im)          ≈ -(3/32)*zeta(3) - (pi^3/32) * im
             @test imag(polylog(3, (1+im)/sqrt(2) )) ≈ 7 * pi^3 / 256
-            @test real(polylog(3, (1+im)/2 )) ≈ log(2)^3/48 - (5/192)*pi^2*log(2) + (35/64)*zeta(3)
+            @test real(polylog(3, (1+im)/2 )) ≈ log(2)^3/48 - (5/192)*pi^2*log(2) + (35/64)*zeta(3) # also see A355022
             @test real(polylog(3, (1+im))) ≈ (pi^2/32)*log(2) + (35/64)*zeta(3)
 
             for i=1:length(Z)

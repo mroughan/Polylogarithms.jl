@@ -9,13 +9,16 @@ import SpecialFunctions
 # not using MPFR for the moment
 # using Base.MPFR: ROUNDING_MODE, big_ln2
 
-export polylog, polylog_ds, polylog_dz, polylog_ds_series_1
+export polylog, polylog_ds, polylog_dz
 export bernoulli, euler, harmonic, stieltjes, dirichlet_beta
 export rogers, spence, dilog, trilog, tetralog
-export zeta_derivative, zeta_series_2, zeta_reflection2, zeta_series_4, zeta_d_near_zero, test_d_near_zeros
+export zeta_derivative, test_d_near_zeros, zeta_error_bound
 export Diagnostics
 export parse
 export Memoization, CacheZeta, clearcache
+
+# these are temporary: don't rely on them being exported in the future
+export polylog_series_2, polylog_series_5, polylog_ds_series_1, polylog_ds_series_2, zeta_series_2, zeta_reflection2, zeta_series_4, zeta_d_near_zero
 
 # @compat ComplexOrReal{T} = Union{T,Complex{T}}
 # s::ComplexOrReal{Float64}

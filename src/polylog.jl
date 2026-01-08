@@ -143,6 +143,15 @@ function polylog(s::Number, z::Number, ::Diagnostics;
         return polylog_series_1(s, z; accuracy=accuracy, min_iterations=min_iterations, max_iterations=max_iterations)
     elseif t <= T && ( abs(s_int-s) > tau_threshold || real(s)<= 0 )
         return polylog_series_2(s, z; accuracy=accuracy, min_iterations=min_iterations, max_iterations=max_iterations)
+
+        # series 5 isn't working well yet
+        # if real(s) >= -4
+        #     return polylog_series_2(s, z; accuracy=accuracy, min_iterations=min_iterations, max_iterations=max_iterations)
+        # else
+        #     return polylog_series_5(s, z; accuracy=accuracy, min_iterations=min_iterations, max_iterations=max_iterations)
+        #     # use these alternative for largish negative real(s)
+        # end
+        
     elseif t <= T &&  abs(s) <= tau_threshold # deal with small, positive values of s
         return polylog_series_2(s, z; accuracy=accuracy, min_iterations=min_iterations, max_iterations=max_iterations)
     # elseif t > K 
@@ -661,6 +670,68 @@ function polylog_series_3(s::Number, z::Number;
     return (total, k, series, max_recursion)
 end
 
+# calculate using power series around μ = log(z) = 0
+# differs from series_2 in that it doesn't collapse sums into zetas, so its more like Hurwitz zeta formulation
+# intended use is there re(s) is negative and largish, eg re(s)<-4
+#    this should not be used near positive integer values of s, but we allow it here in order to test
+function polylog_series_5(s::Number, z::Number;
+                          accuracy::Float64=default_accuracy,
+                          min_iterations::Integer=0,
+                          max_iterations::Integer=default_max_iterations )
+
+    μ = log(convert(Complex{Float64}, z)) # input z could be an integer or anything
+    if typeof(s) <: Real
+        s = convert(Float64, s) # convert s into a double
+    elseif typeof(s) <: Complex
+        s = convert(Complex{Float64}, s) # convert s into doubles
+    end
+    # println("μ = $μ") 
+    if abs(μ) > twoπ
+        throw(DomainError(z, "we need |log(z)|< 2π for this series"))
+    end
+    if real(s) > -4
+        throw(DomainError(z, "only use this when re(s) < -4"))
+    end
+    oneminuss = 1.0 - s
+    total = (-μ)^(- oneminuss)
+    
+    converged = false
+    tmp = 1
+    k = 0
+    a = Inf
+    a_2 = Inf
+    # A = abs( 2.0*twoπ^real(s) * exp(abs(imag(π*s)))  )
+    # this doesn't work if z=1.0, and hence μ=0, even when that converges, but should already be delt with
+    while k<=max_iterations && ~converged
+        a_3 = a_2
+        a_2 = a
+        k = k + 1
+        a = (-2*k*π*im -μ )^(- oneminuss) + (+2*k*π*im -μ )^(- oneminuss) 
+        total += a
+         if k > min_iterations &&
+            abs(a)/abs(total) < 0.5*accuracy &&
+            abs(a_2)/abs(total) < 0.5*accuracy &&
+            abs(a_2) > abs(a) 
+            # abs( A * (k-real(s))^real(-s) * (μ/twoπ)^k )/abs(total) < accuracy
+            # && abs( 2*twoπ^real(s) * (μ/twoπ)^k )/abs(total) < accuracy 
+            # the stopping rule should be implemented more efficiently as part of the calculation above
+            converged = true
+        end
+        k = k + 1
+    end
+    total *= SpecialFunctions.gamma(oneminuss)
+ 
+    # get correct value along the branch
+    if isreal(z) && real(z)>=1
+        # total -= 2*π*im*μ^(s-1)/SpecialFunctions.gamma(s)
+        total -= exp( log(twoπ*im) + (s-1)*log(μ) - SpecialFunctions.loggamma(s) )
+    end
+   
+    series = 5
+    max_recursion = 0
+    return (total, k, series, max_recursion)
+end
+
 #
 # asymptotic expansion
 #     
@@ -815,6 +886,25 @@ function polylog_ds(s::Number, z::Number;
                     accuracy::Float64=default_accuracy,
                     min_iterations::Integer=0,
                     max_iterations::Integer=default_max_iterations)
+    
+    if abs(z) >= 1.0
+        throw(DomainError(z, "At present, this only works for |z|<1"))
+    end
+    return polylog_ds_series_1(s, z;
+                               accuracy=accuracy,
+                               min_iterations=min_iterations,
+                               max_iterations=max_iterations)
+end
+
+
+
+
+# not using this yet
+function polylog_ds_new(s::Number, z::Number;
+                    level=1, # keep track of recursion
+                    accuracy::Float64=default_accuracy,
+                    min_iterations::Integer=0,
+                    max_iterations::Integer=default_max_iterations)
     #
     if isreal(s)
         s = convert(Float64, s)
@@ -826,20 +916,45 @@ function polylog_ds(s::Number, z::Number;
     else
         z = convert(Complex{Float64}, z)
     end
-       
-    if abs(z) >= 1.0
-        throw(DomainError(z, "At present, this only works for |z|<1"))
+
+    tau_threshold = 1.0e-3
+    μ = log(convert(Complex{Float64}, z)) # input z could be an integer or anything
+    t = abs(μ/twoπ)
+    T = 0.512 # the duplication formula seems to work if T=0.5 in the small associated wedge, but why risk it?
+    # K = 36.84/twoπ # |z|>log(1.0e+16) # conservative bound at which we swap to asymptotic expansion
+    s_int = round(real(s)) # nearest real integer to s (presuming it is nearly real)
+    if abs(μ) < 1.0e-14
+        # Deal with this case separately or it causes pain in Series 2 and 3, which should be resolvable,
+        # but its just easier here.
+        if real(s) > 1
+            return zeta_derivative(s)[1], 0, 0, 0
+        else
+            return typeof(z)(Inf), 0, 0, 0
+        end
+        # There are lots of other special cases to add here eventually
+    elseif abs(z) <= 0.5 && abs(z) < t
+        return polylog_ds_series_1(s, z; accuracy=accuracy, min_iterations=min_iterations, max_iterations=max_iterations)
+    elseif t <= T && ( abs(s_int-s) > tau_threshold || real(s)<= 0 )
+        return polylog_ds_series_2(s, z; accuracy=accuracy, min_iterations=min_iterations, max_iterations=max_iterations)
+    elseif t <= T &&  abs(s) <= tau_threshold # deal with small, positive values of s
+        return polylog_ds_series_2(s, z; accuracy=accuracy, min_iterations=min_iterations, max_iterations=max_iterations)
+    elseif t <= T
+        # not implemented
+        throw(DomainError(z, "This domain isn't implemented yet"))
+    elseif abs(s_int-s) > tau_threshold || real(s)<= 0
+        # not implemented
+        throw(DomainError(z, "This domain isn't implemented yet"))
+    else
+        # not implemented
+        throw(DomainError(z, "This domain isn't implemented yet"))
     end
-    return polylog_ds_series_1(s, z;
-                               accuracy=accuracy,
-                               min_iterations=min_iterations,
-                               max_iterations=max_iterations)
+
 end
 
 const max_log_ratio = default_max_iterations + 1
 const log_ratios = log.(1:max_log_ratio) ./ log.(0:max_log_ratio-1)
     
-# calculate using direct definition
+# calculate using direct definition |z| < 1 (but really we want |z|<0.5 or so for this to converge quickly)
 function polylog_ds_series_1(s::Number, z::Number;
                              accuracy::Float64=default_accuracy,
                              min_iterations::Integer=0,
@@ -941,12 +1056,60 @@ function polylog_ds_series_1(s::Number, z::Number;
 end
     
 # calculate using expansion around z=1.0
+#     see polylog_series_2() for more details
 function polylog_ds_series_2(s::Number, z::Number;
                              accuracy::Float64=default_accuracy,
                              min_iterations::Integer=0,
                              max_iterations::Integer=default_max_iterations ) 
 
+    μ = log(convert(Complex{Float64}, z)) # input z could be an integer or anything
+    if typeof(s) <: Real
+        s = convert(Float64, s) # convert s into a double
+    elseif typeof(s) <: Complex
+        s = convert(Complex{Float64}, s) # convert s into doubles
+    end
+    # println("μ = $μ") 
+    if abs(μ) > twoπ
+        throw(DomainError(z, "we need |log(z)|< 2π for this series"))
+    end
 
+    ℒ = log(complex(-μ))  # '\u2112'
+    oneminuss = 1.0 - s
+    μ_minus_s = (-μ)^(- oneminuss)
+    total = SpecialFunctions.gamma(oneminuss) * μ_minus_s *( ℒ - SpecialFunctions.digamma(oneminuss) )
+             
+    converged = false
+    tmp = 1
+    k = 0
+    a = Inf
+    a_2 = Inf 
+
+    while k<=max_iterations && ~converged
+        println("   total = $total")
+        a_3 = a_2
+        a_2 = a
+        a = tmp * zeta_derivative(s - k)[1]
+        total += a
+        tmp *= μ/(k+1)
+        if k > min_iterations &&
+            abs(a)/abs(total) < 0.5*accuracy &&
+            abs(a_2)/abs(total) < 0.5*accuracy &&
+            abs(a_2) > abs(a)
+
+            converged = true
+        end
+        k = k + 1
+    end
     
+    # get correct value along the branch
+    #    but I am not sure about this bit yet
+    if isreal(z) && real(z)>=1
+        # total -= 2*π*im*μ^(s-1)/SpecialFunctions.gamma(s)
+        total -= exp( log(twoπ*im) + (s-1)*log(μ) - SpecialFunctions.loggamma(s) )
+    end
+    
+    series = 102 # derivative of series 2
+    max_recursion = 0
+    return (total, k, series, max_recursion)
 
 end
