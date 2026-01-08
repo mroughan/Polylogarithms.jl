@@ -151,7 +151,7 @@ function polylog(s::Number, z::Number, ::Diagnostics;
         #     return polylog_series_5(s, z; accuracy=accuracy, min_iterations=min_iterations, max_iterations=max_iterations)
         #     # use these alternative for largish negative real(s)
         # end
-        
+         
     elseif t <= T &&  abs(s) <= tau_threshold # deal with small, positive values of s
         return polylog_series_2(s, z; accuracy=accuracy, min_iterations=min_iterations, max_iterations=max_iterations)
     # elseif t > K 
@@ -874,11 +874,12 @@ simple series version which is valid only for |z| < 1.
 
 ## Output Arguments
 * ``\\displaystyle \\frac{d}{ds} Li_s(z)``
+*  Diagnostics
 
 ## Examples
 ```jldoctest; setup = :(using Polylogarithms)
 julia> polylog_ds(0.35, 0.2)
--0.02947228342617501
+(-0.029472283426188222, 21, 101, 0)
 ```
 """
 function polylog_ds(s::Number, z::Number;

@@ -21,9 +21,8 @@ const log_ratios = log.(1:max_log_ratio) ./ log.(0:max_log_ratio-1)
 * Number of terms used in series (or a diagnostic for non-series approaches)
 
 ## Examples
-```jldoctest
-julia> s = 0.5
-julia> zeta_derivative(s)
+```jldoctest; setup = :(using Polylogarithms)
+julia> zeta_derivative(0.5)
 (-3.9226461392091503, 19)
 ```
 """
