@@ -13,5 +13,5 @@ CurrentModule = Polylogarithms
 ```@autodocs
 Modules = [Polylogarithms]
 Pages   =
-["Polylogarithms.jl", "polylog.jl", "additional_functions.jl", "bernoulli_n.jl", "bernoulli_poly.jl", "harmonic.jl", "stieltjes.jl", "beta.jl", "utilities.jl"]
+["Polylogarithms.jl", "polylog.jl", "additional_functions.jl", "bernoulli_n.jl", "bernoulli_poly.jl", "harmonic.jl", "stieltjes.jl", "beta.jl", "utilities.jl", "zeta_derivative.jl"]
 ```
